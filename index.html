@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0d0d0e">
 <title>Lynxz | Bio</title>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:#0d0d0e; --fg:#ecebe8; --mute:#8f8e8a; --line:rgba(255,255,255,.14);
+    --panel:#141214; --bg:#0d0d0e; --fg:#ecebe8; --mute:#8f8e8a; --line:rgba(255,255,255,.14);
     --serif:"Instrument Serif", Georgia, "Times New Roman", serif;
     --sans:"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
@@ -137,9 +140,6 @@
   section { scroll-margin-top:84px; }
 
   /* My Love button */
-  .love-btn { all:unset; display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:10px 20px; border:1px solid var(--line); border-radius:999px; color:var(--mute); font:500 .9rem var(--sans); cursor:pointer; transition:color .2s, border-color .2s, background .2s; }
-  .love-btn:hover, .love-btn:focus-visible { color:var(--fg); border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.04); }
-  .love-btn::before { content:"♡"; font-size:1.05em; line-height:1; }
 
   /* My Love modal */
   .love-modal { position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .6s ease; overflow:hidden; background:#000001; }
@@ -149,10 +149,36 @@
   #loveStage { position:absolute; inset:0; z-index:1; }
   #loveStage canvas { display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
   #loveStage canvas:active { cursor:grabbing; }
-  .love-flash { position:absolute; inset:0; z-index:15; pointer-events:none; opacity:0; background:radial-gradient(circle at center, #ffffff 0%, #ffb3d6 35%, #ff2e88 100%); transition:opacity 1.6s ease; }
+  .love-flash { position:absolute; inset:0; z-index:15; pointer-events:none; opacity:0; background:radial-gradient(circle at center, #f4f0ff 0%, #a894d6 45%, #34264f 100%); transition:opacity 1.6s ease; }
   .love-flash.on { opacity:1; transition:opacity .6s ease-in; }
-  #cosmicLoveClose { position:absolute; z-index:20; top:18px; right:18px; width:42px; height:42px; display:grid; place-items:center; border-radius:50%; border:1px solid rgba(255,140,200,.28); background:rgba(0,0,0,.4); color:#ffc9e3; font:300 26px/1 var(--sans); cursor:pointer; transition:color .2s, background .2s, border-color .2s; }
-  #cosmicLoveClose:hover, #cosmicLoveClose:focus-visible { color:#fff; background:rgba(255,80,160,.18); border-color:rgba(255,140,200,.6); }
+
+
+
+  /* My Love button */
+  .love-btn { all:unset; display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:10px 20px; border:1px solid var(--line); border-radius:999px; color:var(--mute); font:500 .9rem var(--sans); cursor:pointer; transition:color .2s, border-color .2s, background .2s; }
+  .love-btn:hover, .love-btn:focus-visible { color:var(--fg); border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.04); }
+
+  #cosmicLoveClose { position:absolute; z-index:20; top:24px; right:26px; padding:0; border:0; background:none; color:var(--mute); font:400 .92rem var(--sans); text-decoration:underline; text-underline-offset:5px; text-decoration-color:var(--line); cursor:pointer; transition:color .2s, text-decoration-color .2s; }
+  #cosmicLoveClose:hover, #cosmicLoveClose:focus-visible { color:var(--fg); text-decoration-color:var(--mute); }
+
+  .mode-bar { position:absolute; z-index:16; left:50%; bottom:30px; transform:translate(-50%,8px); display:inline-flex; align-items:center; gap:14px; opacity:0; pointer-events:none; transition:opacity .5s ease, transform .5s ease; }
+  .mode-bar.on { opacity:1; pointer-events:auto; transform:translate(-50%,0); }
+  .mode-bar button { padding:2px 0; border:0; background:none; color:var(--mute); font:400 .92rem var(--sans); text-decoration:underline; text-underline-offset:5px; text-decoration-color:transparent; cursor:pointer; transition:color .2s, text-decoration-color .2s; }
+  .mode-bar button:hover, .mode-bar button:focus-visible { color:var(--fg); }
+  .mode-bar button.on { color:var(--fg); text-decoration-color:var(--line); }
+  .mode-div { width:1px; height:13px; background:var(--line); }
+
+  .mem-card { position:absolute; inset:0; z-index:18; display:grid; place-items:center; padding:20px; background:rgba(9,9,10,.72); opacity:0; pointer-events:none; transition:opacity .35s ease; }
+  .mem-card.on { opacity:1; pointer-events:auto; }
+  .mem-inner { position:relative; width:min(78vw,300px); padding:38px 30px 32px; background:var(--panel); color:var(--fg); border:1px solid var(--line); border-radius:8px; text-align:center; transform:translateY(10px) scale(.97); transition:transform .45s cubic-bezier(.2,.7,.2,1); box-shadow:0 30px 90px rgba(0,0,0,.5); }
+  .mem-card.on .mem-inner { transform:translateY(0) scale(1); }
+  .mem-photo { aspect-ratio:1; margin-bottom:18px; display:grid; place-items:center; overflow:hidden; border-radius:5px; background:#1a1a1d; }
+  .mem-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+  .mem-icon { display:block; width:24px; height:24px; margin:0 auto 16px; color:var(--mute); opacity:.6; }
+  .mem-inner h3 { font:italic 400 1.9rem/1.1 var(--serif); }
+  .mem-inner p { margin-top:8px; color:var(--mute); font-style:italic; font-size:.9rem; line-height:1.55; }
+  .mem-x { position:absolute; top:14px; right:16px; padding:0; border:0; background:none; color:var(--mute); font:400 .8rem var(--sans); text-decoration:underline; text-underline-offset:4px; text-decoration-color:var(--line); cursor:pointer; transition:color .2s, text-decoration-color .2s; }
+  .mem-x:hover, .mem-x:focus-visible { color:var(--fg); text-decoration-color:var(--mute); }
 
   @media (max-width:860px) {
     .layout { grid-template-columns:1fr; padding-top:84px; row-gap:48px; }
@@ -306,7 +332,21 @@
   <div class="love-veil"></div>
   <div id="loveStage"></div>
   <div id="loveFlash" class="love-flash"></div>
-  <button id="cosmicLoveClose" class="love-close" type="button" aria-label="Close">&times;</button>
+  <button id="cosmicLoveClose" class="love-close" type="button" aria-label="Close">close</button>
+  <div id="modeBar" class="mode-bar" role="group" aria-label="Drag mode">
+    <button type="button" data-mode="tilt" class="on">tilt</button>
+    <span class="mode-div" aria-hidden="true"></span>
+    <button type="button" data-mode="move">move</button>
+  </div>
+  <div id="memCard" class="mem-card" aria-hidden="true">
+    <div class="mem-inner" role="dialog" aria-labelledby="memTitle">
+      <button type="button" class="mem-x" id="memClose" aria-label="Close">close</button>
+      <div class="mem-photo" id="memPhoto" hidden></div>
+      <svg class="mem-icon" id="memIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7-4.4-9.5-8.8C.7 7.9 2.2 4 6 4c2.1 0 3.6 1.2 4.4 2.6C11.2 5.2 12.7 4 14.8 4c3.8 0 5.3 3.9 3.6 7.7C15.9 16.1 12 20.5 12 20.5z"/></svg>
+      <h3 id="memTitle"></h3>
+      <p id="memText"></p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -327,15 +367,23 @@
     loveModal.classList.add('show'); loveModal.setAttribute('aria-hidden', 'false');
     window.dispatchEvent(new CustomEvent('love:open'));
   };
+  const memCard = $('memCard');
+  const closeMem = () => { memCard.classList.remove('on'); memCard.setAttribute('aria-hidden', 'true'); };
+  memCard.addEventListener('click', e => { if (e.target === memCard || e.target.id === 'memClose') closeMem(); });
   const closeLove = () => {
     if (!loveModal.classList.contains('show')) return;
+    closeMem();
     loveModal.classList.remove('show'); loveModal.setAttribute('aria-hidden', 'true');
     window.dispatchEvent(new CustomEvent('love:close'));
   };
   loveBtn.addEventListener('click', openLove);
   $('cosmicLoveClose').addEventListener('click', closeLove);
   loveModal.addEventListener('click', e => { if (e.target === loveModal || e.target.classList.contains('love-veil')) closeLove(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLove(); });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (memCard.classList.contains('on')) { closeMem(); return; }
+    closeLove();
+  });
 
   // Eye icon: hide/show the view count (remembered)
   const pill = $('pill'), eye = $('eye');
@@ -510,7 +558,13 @@
   window.addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
 </script>
 <script type="module">
-  const TEXTS = ['MI AMOR', 'MY LOVE', 'FOREVER', 'TE QUIERO'];
+  const MEMORIES = [
+    { text: 'My love', photo: '', caption: '' },
+    { text: 'Forever', photo: '', caption: '' },
+    { text: 'I love you', photo: '', caption: '' },
+    { text: 'Always yours', photo: '', caption: '' }
+  ];
+  const FLOATING_HEARTS = 0;
   const TUNNEL_TIME = 4.4;
   const TAU = Math.PI * 2;
 
@@ -530,6 +584,18 @@
       float halo = exp(-d * 4.0);
       vec3 c = vColor * (0.45 * halo + core) + vec3(core * 0.55);
       gl_FragColor = vec4(c, vAlpha * (0.55 * halo + core) * uOpacity);
+    }
+  `;
+
+  const FRAG_DUST = `
+    uniform float uOpacity;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float d = length(gl_PointCoord - 0.5);
+      if (d > 0.5) discard;
+      float a = smoothstep(0.5, 0.0, d);
+      gl_FragColor = vec4(vColor, vAlpha * a * 0.5 * uOpacity);
     }
   `;
 
@@ -573,7 +639,7 @@
       vec4 mv = modelViewMatrix * vec4(p, 1.0);
       gl_Position = projectionMatrix * mv;
       float depth = max(-mv.z, 0.1);
-      gl_PointSize = aSize * uScale / depth;
+      gl_PointSize = min(aSize * uScale / depth, uScale * 0.35);
       vColor = aColor;
       vAlpha = (0.55 + 0.45 * sin(uTime * 3.0 + aPhase * 60.0)) * uReveal;
     }
@@ -597,14 +663,70 @@
     }
   `;
 
+  const VERT_HEART = `
+    uniform float uTime;
+    uniform float uScale;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float a = aPhase * 100.0;
+      vec3 p = position + vec3(sin(uTime * 1.3 + a), cos(uTime * 1.1 + a * 1.3), sin(uTime * 0.9 + a * 0.7)) * 0.18;
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float depth = max(-mv.z, 0.1);
+      float tw = 0.5 + 0.5 * sin(uTime * (1.5 + aPhase * 4.0) + a);
+      gl_PointSize = aSize * (0.8 + 0.5 * tw) * uScale / depth;
+      vColor = aColor;
+      vAlpha = 0.45 + 0.55 * tw;
+    }
+  `;
+
+  const VERT_STARS = `
+    uniform float uTime;
+    uniform float uScale;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      float tw = 0.5 + 0.5 * sin(uTime * (0.6 + aPhase * 2.4) + aPhase * 100.0);
+      gl_PointSize = aSize * (uScale / 60.0) * (0.85 + 0.3 * tw);
+      vColor = aColor;
+      vAlpha = 0.45 + 0.55 * tw;
+    }
+  `;
+
+  const SOURCES = [
+    () => Promise.all([
+      import('three'),
+      import('three/addons/controls/OrbitControls.js'),
+      import('three/addons/postprocessing/EffectComposer.js'),
+      import('three/addons/postprocessing/RenderPass.js'),
+      import('three/addons/postprocessing/UnrealBloomPass.js')
+    ]),
+    () => Promise.all([
+      import('https://esm.sh/three@0.160.0'),
+      import('https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js?deps=three@0.160.0'),
+      import('https://esm.sh/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js?deps=three@0.160.0'),
+      import('https://esm.sh/three@0.160.0/examples/jsm/postprocessing/RenderPass.js?deps=three@0.160.0'),
+      import('https://esm.sh/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js?deps=three@0.160.0')
+    ])
+  ];
+
   let libs = null;
-  const loadLibs = () => libs || (libs = Promise.all([
-    import('https://esm.sh/three'),
-    import('https://esm.sh/three/addons/controls/OrbitControls.js'),
-    import('https://esm.sh/three/addons/postprocessing/EffectComposer.js'),
-    import('https://esm.sh/three/addons/postprocessing/RenderPass.js'),
-    import('https://esm.sh/three/addons/postprocessing/UnrealBloomPass.js')
-  ]));
+  const loadLibs = () => libs || (libs = (async () => {
+    let lastErr;
+    for (const load of SOURCES) {
+      try { return await load(); } catch (e) { lastErr = e; console.warn(e); }
+    }
+    libs = null;
+    throw lastErr;
+  })());
 
   const easeOut = x => 1 - Math.pow(1 - x, 3);
   const rnd = (a, b) => a + Math.random() * (b - a);
@@ -613,13 +735,14 @@
 
   async function build() {
     const [THREE, { OrbitControls }, { EffectComposer }, { RenderPass }, { UnrealBloomPass }] = await loadLibs();
-    try { await document.fonts.load('italic 64px "Instrument Serif"'); } catch (e) {}
+    try { await Promise.all([document.fonts.load('600 64px "Hanken Grotesk"'), document.fonts.load('italic 64px "Instrument Serif"')]); } catch (e) {}
 
     const dpr = Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 2);
     const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
     renderer.setPixelRatio(dpr);
     renderer.setSize(innerWidth, innerHeight);
     renderer.setClearColor(0x000001);
+    stage.innerHTML = '';
     stage.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
@@ -629,16 +752,18 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enablePan = false;
-    controls.minDistance = 14;
-    controls.maxDistance = 170;
+    controls.enableRotate = false;
     controls.minPolarAngle = 0.2;
     controls.maxPolarAngle = Math.PI * 0.62;
     controls.autoRotateSpeed = 0.6;
+    controls.zoomSpeed = 1.6;
+    controls.minDistance = 3.9;
+    controls.maxDistance = 150;
     controls.enabled = false;
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.2);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.95, 0.7, 0.2);
     composer.addPass(bloom);
 
     const camEnd = new THREE.Vector3();
@@ -646,7 +771,7 @@
     const computeCam = () => {
       const aspect = innerWidth / innerHeight;
       const mult = aspect < 1 ? Math.min(2.4, 1 + (1 / aspect - 1) * 0.55) : 1;
-      camEnd.set(0, 20, 46).multiplyScalar(mult);
+      camEnd.set(0, 10, 64).multiplyScalar(mult);
       camStart.copy(camEnd).multiplyScalar(2.4);
     };
     computeCam();
@@ -696,12 +821,20 @@
 
     const tunnelMat = makeMat(VERT_TUNNEL);
     const orbitMat = makeMat(VERT_ORBIT);
-    const heartMat = makeMat(VERT_STATIC);
-    const beamMat = makeMat(VERT_STATIC);
-    const starMat = makeMat(VERT_STATIC);
-    const roomMats = [orbitMat, heartMat, beamMat, starMat];
+    const heartMat = makeMat(VERT_HEART);
+    const starMat = makeMat(VERT_STARS);
+    const dustMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 }, uScale: { value: 60 * dpr }, uOpacity: { value: 1 }, uDist: { value: 0 }, uReveal: { value: 1 } },
+      vertexShader: VERT_ORBIT,
+      fragmentShader: FRAG_DUST,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.NormalBlending
+    });
+    allMats.push(dustMat);
+    const roomMats = [orbitMat, dustMat, heartMat, starMat];
 
-    const PINKS = [[1, 0.25, 0.62], [0.95, 0.1, 0.42], [1, 0.12, 0.28], [1, 0.55, 0.8], [0.7, 0.15, 0.9]];
+    const PINKS = [[0.6, 0.25, 1], [0.45, 0.15, 0.9], [0.75, 0.4, 1], [0.9, 0.7, 1], [0.3, 0.2, 0.9]];
     const tunnel = makePoints(compact ? 5500 : 9500, (i, o) => {
       const a = Math.random() * TAU;
       const r = 3 + Math.pow(Math.random(), 1.7) * 85;
@@ -711,99 +844,194 @@
     }, tunnelMat);
     scene.add(tunnel);
 
-    const eyeCanvas = document.createElement('canvas');
-    eyeCanvas.width = 256; eyeCanvas.height = 128;
-    const eg = eyeCanvas.getContext('2d');
-    eg.shadowColor = '#ff5aa8'; eg.shadowBlur = 18; eg.fillStyle = '#ffffff';
-    eg.beginPath(); eg.moveTo(16, 64); eg.quadraticCurveTo(128, -12, 240, 64); eg.quadraticCurveTo(128, 140, 16, 64); eg.fill();
-    eg.shadowBlur = 0; eg.fillStyle = '#12000a';
-    eg.beginPath(); eg.arc(128, 64, 22, 0, TAU); eg.fill();
-    eg.fillStyle = '#ffffff';
-    eg.beginPath(); eg.arc(121, 57, 6, 0, TAU); eg.fill();
-    const eyeTex = new THREE.CanvasTexture(eyeCanvas);
-    eyeTex.colorSpace = THREE.SRGBColorSpace;
-    const eye = new THREE.Sprite(new THREE.SpriteMaterial({ map: eyeTex, transparent: true, depthTest: false, depthWrite: false, opacity: 0.95 }));
-    eye.position.set(0, 0, -70);
-    eye.scale.set(10, 5, 1);
-    eye.renderOrder = 10;
-    scene.add(eye);
 
     const room = new THREE.Group();
     scene.add(room);
 
-    const C0 = [1, 0.75, 0.9], C1 = [1, 0.2, 0.6], C2 = [0.55, 0.05, 0.3];
-    const RING = compact ? 4000 : 7000;
-    const ARMS = compact ? 45000 : 105000;
-    const galaxy = makePoints(RING + ARMS, (i, o) => {
+    const RING = compact ? 9000 : 16000;
+    const ARMS = compact ? 110000 : 260000;
+    const HOLE = 3.2;
+    const galaxyFill = ringCount => (i, o) => {
       let r, ang, y, c, s;
-      if (i < RING) {
-        r = 2.25 + Math.pow(Math.random(), 2) * 1.4;
+      const k = Math.random();
+      if (i < ringCount) {
+        r = HOLE + 0.2 + Math.pow(Math.random(), 2) * 1.8;
         ang = Math.random() * TAU;
         y = gauss() * 0.12;
-        c = [1, 0.9, 0.96];
+        c = [0.92, 0.85, 1];
         s = 1.5 + Math.random() * 2.5;
-      } else if (Math.random() < 0.07) {
-        r = 2.2 + Math.pow(Math.random(), 2) * 5;
+      } else if (k < 0.14) {
+        r = HOLE + 0.8 + Math.pow(Math.random(), 2.2) * 9;
         ang = Math.random() * TAU;
-        y = gauss() * 0.6;
-        c = [1, 0.85, 0.92];
-        s = 1.5 + Math.random() * 3;
+        y = gauss() * 2.4 * Math.exp(-r * 0.11);
+        c = lerp3([0.95, 0.9, 1], [0.7, 0.45, 1], Math.min(1, (r - HOLE) / 11));
+        s = 1.8 + Math.random() * 3.5;
+      } else if (k < 0.36) {
+        r = 8 + Math.pow(Math.random(), 0.85) * 50;
+        ang = Math.random() * TAU;
+        y = gauss() * (0.8 + r * 0.03);
+        c = lerp3([0.6, 0.5, 0.95], [0.3, 0.28, 0.75], r / 58).map(v => v * 0.55);
+        s = 3.5 + Math.random() * 4.5;
       } else {
         const arm = Math.random() < 0.5 ? 0 : 1;
-        r = 3 + Math.pow(Math.random(), 1.5) * 37;
-        ang = arm * Math.PI + r * 0.26 + gauss() * (0.25 + r * 0.012);
-        y = gauss() * (0.25 + 2.2 * Math.exp(-r * 0.09));
-        const t = r / 40;
-        c = t < 0.35 ? lerp3(C0, C1, t / 0.35) : lerp3(C1, C2, (t - 0.35) / 0.65);
-        if (Math.random() < 0.04) c = [1, 0.9, 0.95];
-        s = 1.4 + Math.pow(Math.random(), 2) * 3.6;
+        const lane = Math.random() < 0.35;
+        r = HOLE + 2.2 + Math.pow(Math.random(), 1.4) * 29;
+        ang = arm * Math.PI + r * 0.3 + gauss() * (0.16 + r * 0.006) + (lane ? 0.2 : 0);
+        y = gauss() * (0.2 + 1.6 * Math.exp(-r * 0.1));
+        const t = (r - HOLE) / 32;
+        if (lane) c = lerp3([0.45, 0.12, 0.85], [0.22, 0.04, 0.5], t);
+        else c = t < 0.35 ? lerp3([0.96, 0.9, 1], [0.72, 0.5, 1], t / 0.35) : lerp3([0.72, 0.5, 1], [0.42, 0.2, 0.85], (t - 0.35) / 0.65);
+        if (Math.random() < 0.05) c = [0.97, 0.95, 1];
+        s = 1.3 + Math.pow(Math.random(), 2) * 3.5;
       }
       o.p = [r, y, ang];
       o.c = c;
       o.s = s;
-    }, orbitMat);
-    room.add(galaxy);
+    };
 
-    const hole = new THREE.Mesh(new THREE.SphereGeometry(2.1, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000 }));
-    room.add(hole);
+    const makeGlowTex = () => {
+      const c = document.createElement('canvas');
+      c.width = 256; c.height = 256;
+      const g = c.getContext('2d');
+      const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+      gr.addColorStop(0, 'rgba(255,255,255,1)');
+      gr.addColorStop(0.25, 'rgba(255,255,255,0.55)');
+      gr.addColorStop(0.6, 'rgba(255,255,255,0.15)');
+      gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    const makeFlareTex = () => {
+      const c = document.createElement('canvas');
+      c.width = 128; c.height = 128;
+      const g = c.getContext('2d');
+      const gr = g.createRadialGradient(64, 64, 0, 64, 64, 30);
+      gr.addColorStop(0, 'rgba(255,255,255,1)');
+      gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+      const hg = g.createLinearGradient(0, 0, 128, 0);
+      hg.addColorStop(0, 'rgba(255,255,255,0)'); hg.addColorStop(0.5, 'rgba(255,255,255,1)'); hg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = hg; g.fillRect(0, 62, 128, 4);
+      const vg = g.createLinearGradient(0, 0, 0, 128);
+      vg.addColorStop(0, 'rgba(255,255,255,0)'); vg.addColorStop(0.5, 'rgba(255,255,255,1)'); vg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = vg; g.fillRect(62, 0, 4, 128);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+
+    const galaxyGroup = new THREE.Group();
+    galaxyGroup.rotation.set(0.28, 0, 0.42);
+    const tiltedQ = galaxyGroup.quaternion.clone();
+    const system = new THREE.Group();
+    room.add(system);
+    system.add(galaxyGroup);
+    galaxyGroup.add(makePoints(RING + ARMS, galaxyFill(RING), orbitMat));
+    const dust = makePoints(compact ? 5000 : 9000, (i, o) => {
+      const arm = Math.random() < 0.5 ? 0 : 1;
+      const r = HOLE + 3 + Math.pow(Math.random(), 1.2) * 24;
+      o.p = [r, gauss() * 0.35, arm * Math.PI + r * 0.3 + 0.11 + gauss() * 0.07];
+      o.c = [0.03, 0, 0.08];
+      o.s = 4 + Math.random() * 5;
+    }, dustMat);
+    dust.renderOrder = 3;
+    galaxyGroup.add(dust);
+    galaxyGroup.add(new THREE.Mesh(new THREE.SphereGeometry(HOLE, 48, 48), new THREE.MeshBasicMaterial({ color: 0x000000 })));
+
+    const glowTex = makeGlowTex();
+    const glowItems = [];
+    const addGlow = (mesh, base) => { galaxyGroup.add(mesh); glowItems.push({ mat: mesh.material, base }); };
+    const glowMat = (color) => new THREE.MeshBasicMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, opacity: 0 });
+    [[120, 0x5b3fc0, 0.32], [64, 0x9a4dff, 0.28]].forEach(([size, color, base]) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), glowMat(color));
+      m.rotation.x = -Math.PI / 2;
+      addGlow(m, base);
+    });
+    const darkCanvas = document.createElement('canvas');
+    darkCanvas.width = 256; darkCanvas.height = 256;
+    const dg = darkCanvas.getContext('2d');
+    const dgr = dg.createRadialGradient(128, 128, 0, 128, 128, 128);
+    dgr.addColorStop(0, 'rgba(0,0,0,1)');
+    dgr.addColorStop(0.4, 'rgba(0,0,0,0.9)');
+    dgr.addColorStop(1, 'rgba(0,0,0,0)');
+    dg.fillStyle = dgr; dg.fillRect(0, 0, 256, 256);
+    const darkHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(darkCanvas), transparent: true, depthWrite: false, opacity: 0 }));
+    darkHalo.scale.set(HOLE * 5, HOLE * 5, 1);
+    darkHalo.renderOrder = 4;
+    galaxyGroup.add(darkHalo);
+    glowItems.push({ mat: darkHalo.material, base: 0.9 });
+
+    const introMat = makeMat(VERT_ORBIT);
+    const introGroup = new THREE.Group();
+    introGroup.add(makePoints(compact ? 30000 : 65000, galaxyFill(compact ? 3000 : 6000), introMat));
+    introGroup.add(new THREE.Mesh(new THREE.SphereGeometry(HOLE, 48, 48), new THREE.MeshBasicMaterial({ color: 0x000000 })));
+    introGroup.rotation.x = Math.PI / 2 - 0.45;
+    scene.add(introGroup);
 
     const heartXY = t => [16 * Math.pow(Math.sin(t), 3), 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)];
-    const K = 0.55;
-    const OUT = 2400;
-    const heartPts = makePoints(OUT + 5200, (i, o) => {
-      const t = Math.random() * TAU;
-      const [x, y] = heartXY(t);
-      if (i < OUT) {
-        o.p = [x * K + gauss() * 0.25, y * K + gauss() * 0.25, gauss() * 0.4];
-        o.c = Math.random() < 0.35 ? [1, 0.9, 0.95] : [1, 0.3, 0.65];
-        o.s = 1.5 + Math.random() * 2.5;
-      } else {
-        const s = Math.pow(Math.random(), 0.45);
-        o.p = [x * K * s, y * K * s, gauss() * 1.4];
-        o.c = [0.95, 0.15, 0.45];
-        o.s = 1 + Math.random() * 2;
-      }
+    const K = 1.75;
+    const HN = 2000;
+    const hx = [], hy = [], hl = [0];
+    for (let i = 0; i <= HN; i++) {
+      const [x, y] = heartXY(i / HN * TAU);
+      hx.push(x * K); hy.push(y * K + 4.4);
+      if (i > 0) hl.push(hl[i - 1] + Math.hypot(hx[i] - hx[i - 1], hy[i] - hy[i - 1]));
+    }
+    const hTotal = hl[HN];
+    const heartSample = () => {
+      const d = Math.random() * hTotal;
+      let lo = 0, hi = HN;
+      while (hi - lo > 1) { const m = (lo + hi) >> 1; if (hl[m] <= d) lo = m; else hi = m; }
+      const f = (d - hl[lo]) / ((hl[hi] - hl[lo]) || 1);
+      const tx = hx[hi] - hx[lo], ty = hy[hi] - hy[lo];
+      const len = Math.hypot(tx, ty) || 1;
+      return { x: hx[lo] + tx * f, y: hy[lo] + ty * f, nx: -ty / len, ny: tx / len, u: d / hTotal };
+    };
+    const heartPts = makePoints(compact ? 16000 : 34000, (i, o) => {
+      const q = heartSample();
+      const r = Math.random();
+      let off, c, sz;
+      if (r < 0.55) { off = gauss() * 0.5; c = lerp3([1, 0.78, 0.9], [1, 0.42, 0.66], Math.min(1, Math.abs(off) / 0.6)); sz = 0.8 + Math.random() * 1.4; }
+      else if (r < 0.85) { off = gauss() * 1.3; c = lerp3([1, 0.45, 0.7], [0.95, 0.2, 0.42], Math.min(1, Math.abs(off) / 1.4)); sz = 0.8 + Math.random() * 1.6; }
+      else if (r < 0.95) { off = gauss() * 2.8; c = [0.75, 0.15, 0.35]; sz = 2 + Math.random() * 2; }
+      else if (r < 0.985) { off = gauss() * 0.8; c = [1, 0.97, 0.99]; sz = 3 + Math.random() * 3; }
+      else { off = gauss() * 3.2; c = [0.5, 0.1, 0.25]; sz = 6 + Math.random() * 4; }
+      off *= 1 + 0.4 * Math.sin(q.u * TAU * 5 + 1.3);
+      o.p = [q.x + q.nx * off, q.y + q.ny * off, gauss() * 0.9];
+      o.c = c;
+      o.s = sz;
     }, heartMat);
     const heartGroup = new THREE.Group();
     heartGroup.add(heartPts);
-    heartGroup.position.set(0, 26, 0);
-    room.add(heartGroup);
+    system.add(heartGroup);
 
-    const beam = makePoints(600, (i, o) => {
-      o.p = [gauss() * 0.08, -9.5 - Math.random() * 14.5, gauss() * 0.08];
-      o.c = [1, 0.95, 0.98];
-      o.s = 1 + Math.random() * 2;
-    }, beamMat);
-    beam.position.set(0, 26, 0);
-    room.add(beam);
-
-    const stars = makePoints(compact ? 1800 : 3200, (i, o) => {
-      const v = new THREE.Vector3(gauss(), gauss(), gauss()).normalize().multiplyScalar(rnd(110, 260));
-      o.p = [v.x, v.y, v.z];
-      o.c = Math.random() < 0.6 ? [1, 1, 1] : [1, 0.75, 0.9];
-      o.s = 2 + Math.random() * 3;
+    const STAR_TINTS = [[0.85, 0.88, 1], [0.85, 0.88, 1], [0.75, 0.65, 1], [1, 0.82, 0.92]];
+    const stars = makePoints(compact ? 3500 : 7500, (i, o) => {
+      const z = rnd(-1, 1), a = Math.random() * TAU, rr = Math.sqrt(1 - z * z), d = rnd(220, 420);
+      o.p = [rr * Math.cos(a) * d, z * d, rr * Math.sin(a) * d];
+      const tint = STAR_TINTS[(Math.random() * STAR_TINTS.length) | 0];
+      const br = rnd(0.45, 1);
+      o.c = [tint[0] * br, tint[1] * br, tint[2] * br];
+      o.s = 1.6 + Math.pow(Math.random(), 3) * 2.6;
     }, starMat);
     room.add(stars);
+
+
+    const flareTex = makeFlareTex();
+    const flares = [];
+    const FLARE_COLORS = [0xffffff, 0xffd6e6, 0xffb3d1];
+    for (let i = 0; i < 26; i++) {
+      const q = heartSample();
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: flareTex, color: FLARE_COLORS[i % 3], transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+      const sz = rnd(3, 7);
+      sp.scale.set(sz, sz, 1);
+      sp.position.set(q.x + q.nx * gauss() * 0.6, q.y + q.ny * gauss() * 0.6, 0.5);
+      heartGroup.add(sp);
+      flares.push({ sp, base: rnd(0.6, 1), ph: Math.random() * TAU, sp2: rnd(1, 2.4), size: sz });
+    }
+
 
     const makeHeartTex = () => {
       const c = document.createElement('canvas');
@@ -831,14 +1059,19 @@
 
     const makeTextTex = str => {
       const c = document.createElement('canvas');
-      c.width = 512; c.height = 128;
+      c.width = 1024; c.height = 256;
       const g = c.getContext('2d');
-      g.font = 'italic 400 72px "Instrument Serif", Georgia, "Times New Roman", serif';
+      g.font = 'italic 400 136px "Instrument Serif", Georgia, serif';
       g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.shadowColor = '#ff3d9a'; g.shadowBlur = 24; g.fillStyle = '#ffd6ea';
-      g.fillText(str, 256, 66);
-      g.shadowBlur = 8;
-      g.fillText(str, 256, 66);
+      g.lineJoin = 'round';
+      // soft lavender-white glow, no hard outline — matches the sidebar quote's serif italic
+      g.shadowColor = 'rgba(205,188,255,.5)'; g.shadowBlur = 30;
+      const tg = g.createLinearGradient(0, 60, 0, 196);
+      tg.addColorStop(0, '#f7f3ff'); tg.addColorStop(1, '#cabaf0');
+      g.fillStyle = tg;
+      g.fillText(str, 512, 132);
+      g.shadowBlur = 0;
+      g.fillText(str, 512, 132);
       const t = new THREE.CanvasTexture(c);
       t.colorSpace = THREE.SRGBColorSpace;
       return t;
@@ -846,7 +1079,7 @@
 
     const heartTex = makeHeartTex();
     const floaters = [];
-    const heartCount = compact ? 9 : 16;
+    const heartCount = FLOATING_HEARTS;
     for (let i = 0; i < heartCount; i++) {
       const mat = new THREE.SpriteMaterial({ map: heartTex, transparent: true, depthWrite: false, opacity: 0, color: Math.random() < 0.4 ? 0xff9ac8 : 0xffffff });
       const sp = new THREE.Sprite(mat);
@@ -855,25 +1088,61 @@
       room.add(sp);
       floaters.push({ sp, r: rnd(14, 40), h: rnd(3, 18), speed: rnd(0.05, 0.14) * (Math.random() < 0.5 ? 1 : -1), ph: Math.random() * TAU, base: rnd(0.75, 1) });
     }
-    TEXTS.concat(TEXTS).forEach(str => {
-      const mat = new THREE.SpriteMaterial({ map: makeTextTex(str), transparent: true, depthWrite: false, opacity: 0 });
+    MEMORIES.concat(MEMORIES).forEach((m, idx) => {
+      const mat = new THREE.SpriteMaterial({ map: makeTextTex(m.text), transparent: true, depthWrite: false, opacity: 0 });
       const sp = new THREE.Sprite(mat);
-      sp.scale.set(15, 3.75, 1);
-      room.add(sp);
-      floaters.push({ sp, r: rnd(18, 36), h: rnd(5, 16), speed: rnd(0.04, 0.09) * (Math.random() < 0.5 ? 1 : -1), ph: Math.random() * TAU, base: 0.8 });
+      sp.scale.set(16, 4, 1);
+      sp.renderOrder = 5;
+      sp.userData.mem = idx % MEMORIES.length;
+      galaxyGroup.add(sp);
+      floaters.push({ sp, disk: true, r: rnd(16, 32), h: rnd(1, 3), speed: 0, ph: Math.random() * TAU, base: 0.9 });
     });
 
     let phase = 0, t0 = 0, roomT0 = 0, tunnelDist = 0, flashed = false;
     let running = false, raf = 0, last = 0;
 
+    const modeBar = document.getElementById('modeBar');
+    const modeBtns = [...modeBar.querySelectorAll('button')];
+    const vel = new THREE.Vector2();
+    const axisR = new THREE.Vector3(), axisU = new THREE.Vector3(), qTmp = new THREE.Quaternion();
+    let dragging = false, lastX = 0, lastY = 0, mode = 'tilt', anim = null;
+    const setMode = m => {
+      mode = m;
+      controls.enableRotate = m === 'move';
+      modeBtns.forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+      vel.set(0, 0);
+    };
+    modeBtns.forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+    const spin = (dx, dy) => {
+      axisU.set(0, 1, 0).applyQuaternion(camera.quaternion);
+      axisR.set(1, 0, 0).applyQuaternion(camera.quaternion);
+      qTmp.setFromAxisAngle(axisU, dx * 0.008);
+      galaxyGroup.quaternion.premultiply(qTmp);
+      qTmp.setFromAxisAngle(axisR, dy * 0.008);
+      galaxyGroup.quaternion.premultiply(qTmp);
+    };
+    const resetView = () => {
+      if (phase !== 1) return;
+      anim = { t: 0, from: galaxyGroup.quaternion.clone(), p0: system.position.clone(), c0: camera.position.clone() };
+      vel.set(0, 0);
+    };
+
     const reset = () => {
       phase = 0; tunnelDist = 0; flashed = false;
-      tunnel.visible = true; eye.visible = true; room.visible = false;
+      tunnel.visible = true; introGroup.visible = true; introGroup.position.z = -95; introGroup.scale.setScalar(0.22); room.visible = false;
       controls.enabled = false; controls.autoRotate = false;
+      galaxyGroup.quaternion.copy(tiltedQ);
+      system.position.set(0, 0, 0);
+      dragging = false; anim = null; vel.set(0, 0);
+      setMode('tilt');
+      modeBar.classList.remove('on');
+      glowItems.forEach(g => { g.mat.opacity = 0; });
+      flares.forEach(f => { f.sp.material.opacity = 0; });
       camera.position.set(0, 0, 0);
       camera.lookAt(0, 0, -1);
       tunnelMat.uniforms.uDist.value = 0;
       orbitMat.uniforms.uReveal.value = 0;
+      dustMat.uniforms.uReveal.value = 0;
       roomMats.forEach(m => { m.uniforms.uOpacity.value = 0; });
       floaters.forEach(f => { f.sp.material.opacity = 0; });
       flash.classList.remove('on');
@@ -893,15 +1162,14 @@
         const k = Math.min(t / TUNNEL_TIME, 1);
         tunnelDist += dt * (30 + 320 * k * k);
         tunnelMat.uniforms.uDist.value = tunnelDist;
-        const cyc = t % 2.2;
-        const blink = cyc > 2.0 ? Math.sin((cyc - 2.0) / 0.2 * Math.PI) : 0;
-        eye.scale.y = 5 * (1 - 0.9 * blink);
+        introGroup.position.z = -95 + 88 * k * k * k;
+        introGroup.scale.setScalar(0.22 + 0.5 * k);
         if (t > TUNNEL_TIME - 0.6 && !flashed) { flashed = true; flash.classList.add('on'); }
         if (t >= TUNNEL_TIME) {
           phase = 1; roomT0 = t;
-          tunnel.visible = false; eye.visible = false; room.visible = true;
+          tunnel.visible = false; introGroup.visible = false; room.visible = true;
           camera.position.copy(camStart);
-          controls.target.set(0, 9, 0);
+          controls.target.set(0, 0, 0);
           controls.enabled = true;
           controls.update();
           flash.classList.remove('on');
@@ -909,32 +1177,129 @@
       } else {
         const rt = t - roomT0;
         const fade = Math.min(rt / 1.6, 1);
-        orbitMat.uniforms.uReveal.value = easeOut(Math.min(rt / 3.2, 1));
+        const rev = easeOut(Math.min(rt / 3.2, 1));
+        orbitMat.uniforms.uReveal.value = rev;
+        dustMat.uniforms.uReveal.value = rev;
         roomMats.forEach(m => { m.uniforms.uOpacity.value = fade; });
-        if (rt < 3.5) {
-          camera.position.lerpVectors(camStart, camEnd, easeOut(rt / 3.5));
-        } else {
-          controls.autoRotate = true;
-        }
+        if (rt < 3.5) camera.position.lerpVectors(camStart, camEnd, easeOut(rt / 3.5));
+        controls.autoRotate = mode === 'move' && rt >= 3.5;
         controls.update();
 
-        const beat = 1 + 0.07 * Math.pow(Math.max(0, Math.sin(rt * 3.2)), 8);
+        if (anim) {
+          anim.t = Math.min(anim.t + dt / 1.2, 1);
+          const e = anim.t < 0.5 ? 2 * anim.t * anim.t : 1 - Math.pow(-2 * anim.t + 2, 2) / 2;
+          galaxyGroup.quaternion.slerpQuaternions(anim.from, tiltedQ, e);
+          system.position.copy(anim.p0).multiplyScalar(1 - e);
+          if (mode === 'move') camera.position.lerpVectors(anim.c0, camEnd, e);
+          if (anim.t >= 1) anim = null;
+        } else if (!dragging && (Math.abs(vel.x) > 0.02 || Math.abs(vel.y) > 0.02)) {
+          spin(vel.x, vel.y);
+          vel.multiplyScalar(0.93);
+        }
+        if (rt > 2 && !modeBar.classList.contains('on')) modeBar.classList.add('on');
+        glowItems.forEach(g => { g.mat.opacity = g.base * fade; });
+        stars.rotation.y = rt * 0.006;
+        flares.forEach(f => {
+          const tw = 0.65 + 0.35 * Math.sin(rt * f.sp2 + f.ph);
+          f.sp.material.opacity = f.base * fade * tw;
+          const sc = f.size * (0.8 + 0.4 * tw);
+          f.sp.scale.set(sc, sc, 1);
+        });
+
+        const beat = 1 + 0.035 * Math.pow(Math.max(0, Math.sin(rt * 3.2)), 8);
         heartGroup.scale.setScalar(beat);
-        heartGroup.position.y = 26 + Math.sin(rt * 0.9) * 0.8;
-        beam.position.y = heartGroup.position.y;
+        heartGroup.position.y = Math.sin(rt * 0.9) * 0.5;
         const face = Math.atan2(camera.position.x, camera.position.z);
         heartGroup.rotation.y = face;
-        beam.rotation.y = face;
 
         floaters.forEach(f => {
-          const a = f.ph + rt * f.speed;
-          f.sp.position.set(Math.cos(a) * f.r, f.h + Math.sin(rt * 0.9 + f.ph * 3) * 1.4, Math.sin(a) * f.r);
+          if (f.disk) {
+            const rr = f.r * (0.15 + 0.85 * rev);
+            const a = f.ph + rt * 4 / Math.pow(f.r, 1.15);
+            f.sp.position.set(Math.cos(a) * rr, f.h * rev, Math.sin(a) * rr);
+          } else {
+            const a = f.ph + rt * f.speed;
+            f.sp.position.set(Math.cos(a) * f.r, f.h + Math.sin(rt * 0.9 + f.ph * 3) * 1.4, Math.sin(a) * f.r);
+          }
           f.sp.material.opacity = f.base * fade;
         });
       }
 
       composer.render();
     };
+
+    const memCard = document.getElementById('memCard');
+    const memTitle = document.getElementById('memTitle');
+    const memPhoto = document.getElementById('memPhoto');
+    const memIcon = document.getElementById('memIcon');
+    const memText = document.getElementById('memText');
+    const showMemory = i => {
+      const m = MEMORIES[i];
+      memTitle.textContent = m.text;
+      memPhoto.innerHTML = '';
+      if (m.photo) {
+        const im = document.createElement('img');
+        im.src = m.photo; im.alt = m.text;
+        memPhoto.appendChild(im);
+        memPhoto.hidden = false;
+        memIcon.hidden = true;
+      } else {
+        memPhoto.hidden = true;
+        memIcon.hidden = false;
+      }
+      memText.textContent = m.caption || '???';
+      memText.hidden = false;
+      memCard.classList.add('on');
+      memCard.setAttribute('aria-hidden', 'false');
+    };
+
+    const textSprites = floaters.filter(f => f.sp.userData.mem !== undefined).map(f => f.sp);
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const dom = renderer.domElement;
+    const pick = e => {
+      const r = dom.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const hit = raycaster.intersectObjects(textSprites, false)[0];
+      return hit ? hit.object : null;
+    };
+    let down = null;
+    const pointers = new Set();
+    dom.addEventListener('pointerdown', e => {
+      pointers.add(e.pointerId);
+      down = { x: e.clientX, y: e.clientY, t: performance.now() };
+      lastX = e.clientX; lastY = e.clientY;
+      if (phase === 1 && pointers.size === 1) { dragging = true; anim = null; vel.set(0, 0); }
+      else dragging = false;
+    });
+    const endDrag = e => {
+      pointers.delete(e.pointerId);
+      if (pointers.size === 0) dragging = false;
+    };
+    dom.addEventListener('pointercancel', endDrag);
+    dom.addEventListener('pointerup', e => {
+      endDrag(e);
+      if (!down || phase !== 1) { down = null; return; }
+      const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+      const dt = performance.now() - down.t;
+      down = null;
+      if (moved < 6 && dt < 500) {
+        const sp = pick(e);
+        if (sp) showMemory(sp.userData.mem);
+      }
+    });
+    dom.addEventListener('pointermove', e => {
+      if (phase !== 1) return;
+      if (dragging && pointers.size === 1 && e.buttons) {
+        const dx = e.clientX - lastX, dy = e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        if (mode === 'tilt') { spin(dx, dy); vel.set(dx, dy); }
+        return;
+      }
+      if (!e.buttons) dom.style.cursor = pick(e) ? 'pointer' : '';
+    });
+    dom.addEventListener('dblclick', resetView);
 
     const onResize = () => {
       camera.aspect = innerWidth / innerHeight;
@@ -959,6 +1324,7 @@
         running = false;
         cancelAnimationFrame(raf);
         flash.classList.remove('on');
+        modeBar.classList.remove('on');
       }
     };
   }
@@ -972,6 +1338,7 @@
     } catch (e) {
       building = null;
       console.error(e);
+      stage.innerHTML = '<p style="position:absolute;inset:0;display:grid;place-items:center;color:#ffc9e3;font:400 1rem var(--sans);text-align:center;padding:24px">Could not load the 3D scene. Check your connection, then close and reopen.</p>';
       return;
     }
     if (wanted) api.start();
