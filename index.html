@@ -36,13 +36,15 @@
   #splash:hover p { color:var(--fg); }
 
   /* View counter */
-  .views { position:fixed; top:18px; right:22px; z-index:20; display:flex; align-items:center; gap:8px; color:var(--mute); font-size:.9rem; }
+  .views { position:fixed; top:26px; right:22px; z-index:20; display:flex; align-items:center; gap:8px; color:var(--mute); font-size:.9rem; }
   .views button { display:grid; place-items:center; width:28px; height:28px; border:0; border-radius:50%; background:none; color:inherit; cursor:pointer; }
   .views button:hover { color:var(--fg); }
   .views svg { width:18px; height:18px; }
   .views .eye-off, .views.off .eye-open { display:none; }
   .views.off .eye-off { display:block; }
   .views.off #views { display:none; }
+  .views .snd-off, .views.muted .snd-on { display:none; }
+  .views.muted .snd-off { display:block; }
 
   /* Layout */
   .rise { opacity:0; transform:translateY(22px); }
@@ -88,13 +90,13 @@
 
   iframe { display:block; border:0; border-radius:12px; }
 
-  footer { max-width:1040px; margin:0 auto; padding:24px 28px 130px; color:var(--mute); font-size:.85rem; }
+  footer { max-width:1040px; margin:0 auto; padding:24px 28px 56px; color:var(--mute); font-size:.85rem; }
 
 
-  /* Bottom navigation (animated) */
+  /* Top navigation (animated) */
   .menu { --duration:.45s; --cubic:cubic-bezier(.4,0,.2,1); --color-1:#9a9995; --color-2:#f2f1ee;
-    position:fixed; left:0; right:0; bottom:18px; margin:0 auto; z-index:30; width:36em; max-width:94vw; height:8.4em; padding:0 1.6em;
-    font-size:min(10px, 2.4vw); display:flex; align-items:center; justify-content:center; user-select:none; -webkit-tap-highlight-color:transparent;
+    position:fixed; left:0; right:0; top:12px; margin:0 auto; z-index:30; width:36em; max-width:94vw; height:8.4em; padding:0 1.6em;
+    font-size:min(7px, 1.9vw); display:flex; align-items:center; justify-content:center; user-select:none; -webkit-tap-highlight-color:transparent;
     background:rgba(22,22,23,.94); border:1px solid var(--line); border-radius:4.2em;
     scale:0; animation:scale-up .8s cubic-bezier(.2,.7,.2,1) 1s forwards; animation-play-state:paused; }
   body.in .menu { animation-play-state:running; }
@@ -132,7 +134,25 @@
   @keyframes security-cir { 0% { transform:scale(0); } 100% { transform:scale(1); } }
   .active #security-strok { stroke-dasharray:96; animation:security-strok calc(var(--duration-icon) / 1.2); }
   @keyframes security-strok { 0% { stroke-dashoffset:60; } 100% { stroke-dashoffset:230; } }
-  section { scroll-margin-top:24px; }
+  section { scroll-margin-top:84px; }
+
+  /* My Love button */
+  .love-btn { all:unset; display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:10px 20px; border:1px solid var(--line); border-radius:999px; color:var(--mute); font:500 .9rem var(--sans); cursor:pointer; transition:color .2s, border-color .2s, background .2s; }
+  .love-btn:hover, .love-btn:focus-visible { color:var(--fg); border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.04); }
+  .love-btn::before { content:"♡"; font-size:1.05em; line-height:1; }
+
+  /* My Love modal */
+  .love-modal { position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .6s ease; overflow:hidden; background:#000001; }
+  .love-modal.show { opacity:1; pointer-events:auto; }
+  .love-veil { position:absolute; inset:0; background:#000; opacity:0; transition:opacity .8s ease; }
+  .love-modal.show .love-veil { opacity:.92; }
+  #loveStage { position:absolute; inset:0; z-index:1; }
+  #loveStage canvas { display:block; width:100%; height:100%; cursor:grab; touch-action:none; }
+  #loveStage canvas:active { cursor:grabbing; }
+  .love-flash { position:absolute; inset:0; z-index:15; pointer-events:none; opacity:0; background:radial-gradient(circle at center, #ffffff 0%, #ffb3d6 35%, #ff2e88 100%); transition:opacity 1.6s ease; }
+  .love-flash.on { opacity:1; transition:opacity .6s ease-in; }
+  #cosmicLoveClose { position:absolute; z-index:20; top:18px; right:18px; width:42px; height:42px; display:grid; place-items:center; border-radius:50%; border:1px solid rgba(255,140,200,.28); background:rgba(0,0,0,.4); color:#ffc9e3; font:300 26px/1 var(--sans); cursor:pointer; transition:color .2s, background .2s, border-color .2s; }
+  #cosmicLoveClose:hover, #cosmicLoveClose:focus-visible { color:#fff; background:rgba(255,80,160,.18); border-color:rgba(255,140,200,.6); }
 
   @media (max-width:860px) {
     .layout { grid-template-columns:1fr; padding-top:84px; row-gap:48px; }
@@ -140,6 +160,7 @@
     .side img { width:104px; height:104px; }
     h1 { font-size:3.6rem; }
   }
+  @media (max-width:520px) { .views { right:auto; left:10px; } }
   @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } .menu { scale:1; } }
 </style>
 </head>
@@ -154,6 +175,10 @@
 </div>
 
 <div class="views" id="pill">
+  <button id="snd" type="button" aria-pressed="false" aria-label="Mute music" title="Mute/unmute music">
+    <svg class="snd-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+    <svg class="snd-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>
+  </button>
   <button id="eye" type="button" aria-pressed="true" aria-label="Hide view count" title="Hide/show view count">
     <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
     <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.9 17.9A10.8 10.8 0 0 1 12 20C5 20 1 12 1 12a19 19 0 0 1 5.1-5.9M9.9 4.2A10 10 0 0 1 12 4c7 0 11 8 11 8a19 19 0 0 1-2.2 3.2M1 1l22 22"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
@@ -249,6 +274,7 @@
           <div><span>Developer for Snow</span><b>200K members</b></div>
         </div>
         <p class="learn"><strong>Learning</strong>Lua, C++, C#, reverse engineering, x64dbg, DLLs, and more.</p>
+        <button id="loveBtn" type="button" class="love-btn">my love</button>
       </section>
 
       <section id="links" class="rise" style="--i:5">
@@ -268,12 +294,19 @@
 
       <section id="music" class="rise" style="--i:6">
         <h2>Listening to</h2>
-        <iframe title="Spotify player" src="https://open.spotify.com/embed/track/0BxE4FqsDD1Ot4YuBXwAPp?utm_source=generator&theme=0" width="100%" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        <div id="sp-embed"></div>
       </section>
     </main>
   </div>
 
   <footer class="rise" style="--i:7">Lynxz. Last updated Sep 21, 2026.</footer>
+</div>
+
+<div id="loveModal" class="love-modal" aria-hidden="true">
+  <div class="love-veil"></div>
+  <div id="loveStage"></div>
+  <div id="loveFlash" class="love-flash"></div>
+  <button id="cosmicLoveClose" class="love-close" type="button" aria-label="Close">&times;</button>
 </div>
 
 <script>
@@ -284,9 +317,25 @@
     if (splash.classList.contains('go')) return;
     splash.classList.add('go'); document.body.classList.add('in'); page.classList.add('show');
     setTimeout(() => splash.classList.add('hide'), 250);
-    bg.muted = false; bg.volume = 0.6;
+    bg.volume = 0.6; bg.muted = userMuted;
     bg.play().catch(() => { bg.muted = true; bg.play().catch(()=>{}); });
   });
+
+  // My Love: opens the tunnel + galaxy room overlay
+  const loveBtn = $('loveBtn'), loveModal = $('loveModal');
+  const openLove = () => {
+    loveModal.classList.add('show'); loveModal.setAttribute('aria-hidden', 'false');
+    window.dispatchEvent(new CustomEvent('love:open'));
+  };
+  const closeLove = () => {
+    if (!loveModal.classList.contains('show')) return;
+    loveModal.classList.remove('show'); loveModal.setAttribute('aria-hidden', 'true');
+    window.dispatchEvent(new CustomEvent('love:close'));
+  };
+  loveBtn.addEventListener('click', openLove);
+  $('cosmicLoveClose').addEventListener('click', closeLove);
+  loveModal.addEventListener('click', e => { if (e.target === loveModal || e.target.classList.contains('love-veil')) closeLove(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLove(); });
 
   // Eye icon: hide/show the view count (remembered)
   const pill = $('pill'), eye = $('eye');
@@ -363,7 +412,63 @@
     }
   })();
 
-  // Bottom navigation: jump to sections, highlight follows scrolling
+
+  // Sound: mute button + the video sound ducks automatically while Spotify plays
+  let userMuted = false, spotifyPlaying = false, fadeTimer;
+  try { userMuted = localStorage.getItem('bio-muted') === '1'; } catch (e) {}
+  const snd = $('snd');
+  function fadeVolume(to) {
+    clearInterval(fadeTimer);
+    const from = bg.volume; let i = 0;
+    fadeTimer = setInterval(() => {
+      i++;
+      bg.volume = Math.max(0, Math.min(1, from + (to - from) * i / 12));
+      if (i >= 12) clearInterval(fadeTimer);
+    }, 40);
+  }
+  function applyAudio() { bg.muted = userMuted; fadeVolume(spotifyPlaying ? 0 : 0.6); }
+  function showMuted() {
+    pill.classList.toggle('muted', userMuted);
+    snd.setAttribute('aria-pressed', String(userMuted));
+    snd.setAttribute('aria-label', userMuted ? 'Unmute music' : 'Mute music');
+  }
+  showMuted();
+  snd.addEventListener('click', () => {
+    userMuted = !userMuted;
+    try { localStorage.setItem('bio-muted', userMuted ? '1' : '0'); } catch (e) {}
+    showMuted(); applyAudio();
+  });
+
+  // Spotify player: pause the video sound when it plays, bring it back when it stops
+  const SPOTIFY_ID = '0BxE4FqsDD1Ot4YuBXwAPp';
+  let spReady = false;
+  function spotifyFallback() {
+    const holder = $('sp-embed');
+    if (!holder || spReady) return;
+    const f = document.createElement('iframe');
+    f.title = 'Spotify player';
+    f.src = 'https://open.spotify.com/embed/track/' + SPOTIFY_ID + '?utm_source=generator&theme=0';
+    f.width = '100%'; f.height = '152';
+    f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+    holder.replaceWith(f);
+  }
+  window.onSpotifyIframeApiReady = IFrameAPI => {
+    IFrameAPI.createController($('sp-embed'), { uri: 'spotify:track:' + SPOTIFY_ID, width: '100%', height: 152 }, controller => {
+      spReady = true;
+      controller.addListener('playback_update', e => {
+        const playing = !!e.data && e.data.isPaused === false;
+        if (playing !== spotifyPlaying) { spotifyPlaying = playing; applyAudio(); }
+      });
+    });
+  };
+  const spScript = document.createElement('script');
+  spScript.src = 'https://open.spotify.com/embed/iframe-api/v1';
+  spScript.async = true;
+  spScript.onerror = spotifyFallback;
+  document.body.appendChild(spScript);
+  setTimeout(spotifyFallback, 8000);
+
+  // Top navigation: jump to sections, highlight follows scrolling
   const navItems = [...document.querySelectorAll('.menu__item')];
   const spots = navItems.map(i => i.dataset.target === 'top' ? null : document.getElementById(i.dataset.target));
   let activeItem = document.querySelector('.menu__item.active');
@@ -403,6 +508,483 @@
     activateNav(navItems[idx]);
   }
   window.addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
+</script>
+<script type="module">
+  const TEXTS = ['MI AMOR', 'MY LOVE', 'FOREVER', 'TE QUIERO'];
+  const TUNNEL_TIME = 4.4;
+  const TAU = Math.PI * 2;
+
+  const stage = document.getElementById('loveStage');
+  const flash = document.getElementById('loveFlash');
+  const loveBtn = document.getElementById('loveBtn');
+  const compact = Math.min(innerWidth, innerHeight) < 700 || matchMedia('(pointer: coarse)').matches;
+
+  const FRAG = `
+    uniform float uOpacity;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float d = length(gl_PointCoord - 0.5);
+      if (d > 0.5) discard;
+      float core = exp(-d * 12.0);
+      float halo = exp(-d * 4.0);
+      vec3 c = vColor * (0.45 * halo + core) + vec3(core * 0.55);
+      gl_FragColor = vec4(c, vAlpha * (0.55 * halo + core) * uOpacity);
+    }
+  `;
+
+  const VERT_TUNNEL = `
+    uniform float uDist;
+    uniform float uScale;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float z = mod(position.z + uDist * (0.6 + aPhase * 0.8), 220.0) - 220.0;
+      float tw = uDist * 0.0012;
+      float s = sin(tw);
+      float c = cos(tw);
+      vec2 xy = mat2(c, -s, s, c) * position.xy;
+      vec4 mv = modelViewMatrix * vec4(xy, z, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float depth = max(-mv.z, 0.1);
+      gl_PointSize = aSize * uScale / depth;
+      float fade = smoothstep(0.0, 14.0, depth) * smoothstep(220.0, 120.0, depth);
+      vColor = aColor;
+      vAlpha = fade * (0.6 + 0.4 * sin(uDist * 0.01 + aPhase * 40.0));
+    }
+  `;
+
+  const VERT_ORBIT = `
+    uniform float uTime;
+    uniform float uScale;
+    uniform float uReveal;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      float r = position.x * mix(0.15, 1.0, uReveal);
+      float ang = position.z + uTime * 4.0 / pow(max(position.x, 2.5), 1.15);
+      vec3 p = vec3(r * cos(ang), position.y * uReveal, r * sin(ang));
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float depth = max(-mv.z, 0.1);
+      gl_PointSize = aSize * uScale / depth;
+      vColor = aColor;
+      vAlpha = (0.55 + 0.45 * sin(uTime * 3.0 + aPhase * 60.0)) * uReveal;
+    }
+  `;
+
+  const VERT_STATIC = `
+    uniform float uTime;
+    uniform float uScale;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aPhase;
+    varying vec3 vColor;
+    varying float vAlpha;
+    void main() {
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      gl_Position = projectionMatrix * mv;
+      float depth = max(-mv.z, 0.1);
+      gl_PointSize = aSize * uScale / depth;
+      vColor = aColor;
+      vAlpha = 0.55 + 0.45 * sin(uTime * (1.5 + aPhase * 2.0) + aPhase * 50.0);
+    }
+  `;
+
+  let libs = null;
+  const loadLibs = () => libs || (libs = Promise.all([
+    import('https://esm.sh/three'),
+    import('https://esm.sh/three/addons/controls/OrbitControls.js'),
+    import('https://esm.sh/three/addons/postprocessing/EffectComposer.js'),
+    import('https://esm.sh/three/addons/postprocessing/RenderPass.js'),
+    import('https://esm.sh/three/addons/postprocessing/UnrealBloomPass.js')
+  ]));
+
+  const easeOut = x => 1 - Math.pow(1 - x, 3);
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+  const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+
+  async function build() {
+    const [THREE, { OrbitControls }, { EffectComposer }, { RenderPass }, { UnrealBloomPass }] = await loadLibs();
+    try { await document.fonts.load('italic 64px "Instrument Serif"'); } catch (e) {}
+
+    const dpr = Math.min(window.devicePixelRatio || 1, compact ? 1.5 : 2);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setClearColor(0x000001);
+    stage.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.1, 1000);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enablePan = false;
+    controls.minDistance = 14;
+    controls.maxDistance = 170;
+    controls.minPolarAngle = 0.2;
+    controls.maxPolarAngle = Math.PI * 0.62;
+    controls.autoRotateSpeed = 0.6;
+    controls.enabled = false;
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.85, 0.55, 0.2);
+    composer.addPass(bloom);
+
+    const camEnd = new THREE.Vector3();
+    const camStart = new THREE.Vector3();
+    const computeCam = () => {
+      const aspect = innerWidth / innerHeight;
+      const mult = aspect < 1 ? Math.min(2.4, 1 + (1 / aspect - 1) * 0.55) : 1;
+      camEnd.set(0, 20, 46).multiplyScalar(mult);
+      camStart.copy(camEnd).multiplyScalar(2.4);
+    };
+    computeCam();
+
+    const allMats = [];
+    const makeMat = vs => {
+      const m = new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uScale: { value: 60 * dpr },
+          uOpacity: { value: 1 },
+          uDist: { value: 0 },
+          uReveal: { value: 1 }
+        },
+        vertexShader: vs,
+        fragmentShader: FRAG,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      allMats.push(m);
+      return m;
+    };
+
+    const makePoints = (count, fill, mat) => {
+      const pos = new Float32Array(count * 3);
+      const col = new Float32Array(count * 3);
+      const size = new Float32Array(count);
+      const ph = new Float32Array(count);
+      const o = { p: [0, 0, 0], c: [1, 1, 1], s: 1 };
+      for (let i = 0; i < count; i++) {
+        fill(i, o);
+        pos.set(o.p, i * 3);
+        col.set(o.c, i * 3);
+        size[i] = o.s;
+        ph[i] = Math.random();
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
+      g.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+      g.setAttribute('aPhase', new THREE.BufferAttribute(ph, 1));
+      const pts = new THREE.Points(g, mat);
+      pts.frustumCulled = false;
+      return pts;
+    };
+
+    const tunnelMat = makeMat(VERT_TUNNEL);
+    const orbitMat = makeMat(VERT_ORBIT);
+    const heartMat = makeMat(VERT_STATIC);
+    const beamMat = makeMat(VERT_STATIC);
+    const starMat = makeMat(VERT_STATIC);
+    const roomMats = [orbitMat, heartMat, beamMat, starMat];
+
+    const PINKS = [[1, 0.25, 0.62], [0.95, 0.1, 0.42], [1, 0.12, 0.28], [1, 0.55, 0.8], [0.7, 0.15, 0.9]];
+    const tunnel = makePoints(compact ? 5500 : 9500, (i, o) => {
+      const a = Math.random() * TAU;
+      const r = 3 + Math.pow(Math.random(), 1.7) * 85;
+      o.p = [Math.cos(a) * r, Math.sin(a) * r, Math.random() * 220];
+      o.c = Math.random() < 0.28 ? [1, 1, 1] : PINKS[(Math.random() * PINKS.length) | 0];
+      o.s = 1 + Math.pow(Math.random(), 2.5) * 5;
+    }, tunnelMat);
+    scene.add(tunnel);
+
+    const eyeCanvas = document.createElement('canvas');
+    eyeCanvas.width = 256; eyeCanvas.height = 128;
+    const eg = eyeCanvas.getContext('2d');
+    eg.shadowColor = '#ff5aa8'; eg.shadowBlur = 18; eg.fillStyle = '#ffffff';
+    eg.beginPath(); eg.moveTo(16, 64); eg.quadraticCurveTo(128, -12, 240, 64); eg.quadraticCurveTo(128, 140, 16, 64); eg.fill();
+    eg.shadowBlur = 0; eg.fillStyle = '#12000a';
+    eg.beginPath(); eg.arc(128, 64, 22, 0, TAU); eg.fill();
+    eg.fillStyle = '#ffffff';
+    eg.beginPath(); eg.arc(121, 57, 6, 0, TAU); eg.fill();
+    const eyeTex = new THREE.CanvasTexture(eyeCanvas);
+    eyeTex.colorSpace = THREE.SRGBColorSpace;
+    const eye = new THREE.Sprite(new THREE.SpriteMaterial({ map: eyeTex, transparent: true, depthTest: false, depthWrite: false, opacity: 0.95 }));
+    eye.position.set(0, 0, -70);
+    eye.scale.set(10, 5, 1);
+    eye.renderOrder = 10;
+    scene.add(eye);
+
+    const room = new THREE.Group();
+    scene.add(room);
+
+    const C0 = [1, 0.75, 0.9], C1 = [1, 0.2, 0.6], C2 = [0.55, 0.05, 0.3];
+    const RING = compact ? 4000 : 7000;
+    const ARMS = compact ? 45000 : 105000;
+    const galaxy = makePoints(RING + ARMS, (i, o) => {
+      let r, ang, y, c, s;
+      if (i < RING) {
+        r = 2.25 + Math.pow(Math.random(), 2) * 1.4;
+        ang = Math.random() * TAU;
+        y = gauss() * 0.12;
+        c = [1, 0.9, 0.96];
+        s = 1.5 + Math.random() * 2.5;
+      } else if (Math.random() < 0.07) {
+        r = 2.2 + Math.pow(Math.random(), 2) * 5;
+        ang = Math.random() * TAU;
+        y = gauss() * 0.6;
+        c = [1, 0.85, 0.92];
+        s = 1.5 + Math.random() * 3;
+      } else {
+        const arm = Math.random() < 0.5 ? 0 : 1;
+        r = 3 + Math.pow(Math.random(), 1.5) * 37;
+        ang = arm * Math.PI + r * 0.26 + gauss() * (0.25 + r * 0.012);
+        y = gauss() * (0.25 + 2.2 * Math.exp(-r * 0.09));
+        const t = r / 40;
+        c = t < 0.35 ? lerp3(C0, C1, t / 0.35) : lerp3(C1, C2, (t - 0.35) / 0.65);
+        if (Math.random() < 0.04) c = [1, 0.9, 0.95];
+        s = 1.4 + Math.pow(Math.random(), 2) * 3.6;
+      }
+      o.p = [r, y, ang];
+      o.c = c;
+      o.s = s;
+    }, orbitMat);
+    room.add(galaxy);
+
+    const hole = new THREE.Mesh(new THREE.SphereGeometry(2.1, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+    room.add(hole);
+
+    const heartXY = t => [16 * Math.pow(Math.sin(t), 3), 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)];
+    const K = 0.55;
+    const OUT = 2400;
+    const heartPts = makePoints(OUT + 5200, (i, o) => {
+      const t = Math.random() * TAU;
+      const [x, y] = heartXY(t);
+      if (i < OUT) {
+        o.p = [x * K + gauss() * 0.25, y * K + gauss() * 0.25, gauss() * 0.4];
+        o.c = Math.random() < 0.35 ? [1, 0.9, 0.95] : [1, 0.3, 0.65];
+        o.s = 1.5 + Math.random() * 2.5;
+      } else {
+        const s = Math.pow(Math.random(), 0.45);
+        o.p = [x * K * s, y * K * s, gauss() * 1.4];
+        o.c = [0.95, 0.15, 0.45];
+        o.s = 1 + Math.random() * 2;
+      }
+    }, heartMat);
+    const heartGroup = new THREE.Group();
+    heartGroup.add(heartPts);
+    heartGroup.position.set(0, 26, 0);
+    room.add(heartGroup);
+
+    const beam = makePoints(600, (i, o) => {
+      o.p = [gauss() * 0.08, -9.5 - Math.random() * 14.5, gauss() * 0.08];
+      o.c = [1, 0.95, 0.98];
+      o.s = 1 + Math.random() * 2;
+    }, beamMat);
+    beam.position.set(0, 26, 0);
+    room.add(beam);
+
+    const stars = makePoints(compact ? 1800 : 3200, (i, o) => {
+      const v = new THREE.Vector3(gauss(), gauss(), gauss()).normalize().multiplyScalar(rnd(110, 260));
+      o.p = [v.x, v.y, v.z];
+      o.c = Math.random() < 0.6 ? [1, 1, 1] : [1, 0.75, 0.9];
+      o.s = 2 + Math.random() * 3;
+    }, starMat);
+    room.add(stars);
+
+    const makeHeartTex = () => {
+      const c = document.createElement('canvas');
+      c.width = 128; c.height = 128;
+      const g = c.getContext('2d');
+      const grad = g.createLinearGradient(0, 20, 0, 108);
+      grad.addColorStop(0, '#ff7ab4');
+      grad.addColorStop(1, '#d90f3c');
+      g.shadowColor = '#ff2e88'; g.shadowBlur = 14;
+      g.fillStyle = grad;
+      g.beginPath();
+      g.moveTo(64, 108);
+      g.bezierCurveTo(4, 68, 14, 20, 44, 20);
+      g.bezierCurveTo(56, 20, 64, 30, 64, 38);
+      g.bezierCurveTo(64, 30, 72, 20, 84, 20);
+      g.bezierCurveTo(114, 20, 124, 68, 64, 108);
+      g.fill();
+      g.shadowBlur = 0;
+      g.fillStyle = 'rgba(255,255,255,.55)';
+      g.beginPath(); g.ellipse(40, 40, 9, 5, -0.6, 0, TAU); g.fill();
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+
+    const makeTextTex = str => {
+      const c = document.createElement('canvas');
+      c.width = 512; c.height = 128;
+      const g = c.getContext('2d');
+      g.font = 'italic 400 72px "Instrument Serif", Georgia, "Times New Roman", serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.shadowColor = '#ff3d9a'; g.shadowBlur = 24; g.fillStyle = '#ffd6ea';
+      g.fillText(str, 256, 66);
+      g.shadowBlur = 8;
+      g.fillText(str, 256, 66);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+
+    const heartTex = makeHeartTex();
+    const floaters = [];
+    const heartCount = compact ? 9 : 16;
+    for (let i = 0; i < heartCount; i++) {
+      const mat = new THREE.SpriteMaterial({ map: heartTex, transparent: true, depthWrite: false, opacity: 0, color: Math.random() < 0.4 ? 0xff9ac8 : 0xffffff });
+      const sp = new THREE.Sprite(mat);
+      const sc = rnd(3, 7);
+      sp.scale.set(sc, sc, 1);
+      room.add(sp);
+      floaters.push({ sp, r: rnd(14, 40), h: rnd(3, 18), speed: rnd(0.05, 0.14) * (Math.random() < 0.5 ? 1 : -1), ph: Math.random() * TAU, base: rnd(0.75, 1) });
+    }
+    TEXTS.concat(TEXTS).forEach(str => {
+      const mat = new THREE.SpriteMaterial({ map: makeTextTex(str), transparent: true, depthWrite: false, opacity: 0 });
+      const sp = new THREE.Sprite(mat);
+      sp.scale.set(15, 3.75, 1);
+      room.add(sp);
+      floaters.push({ sp, r: rnd(18, 36), h: rnd(5, 16), speed: rnd(0.04, 0.09) * (Math.random() < 0.5 ? 1 : -1), ph: Math.random() * TAU, base: 0.8 });
+    });
+
+    let phase = 0, t0 = 0, roomT0 = 0, tunnelDist = 0, flashed = false;
+    let running = false, raf = 0, last = 0;
+
+    const reset = () => {
+      phase = 0; tunnelDist = 0; flashed = false;
+      tunnel.visible = true; eye.visible = true; room.visible = false;
+      controls.enabled = false; controls.autoRotate = false;
+      camera.position.set(0, 0, 0);
+      camera.lookAt(0, 0, -1);
+      tunnelMat.uniforms.uDist.value = 0;
+      orbitMat.uniforms.uReveal.value = 0;
+      roomMats.forEach(m => { m.uniforms.uOpacity.value = 0; });
+      floaters.forEach(f => { f.sp.material.opacity = 0; });
+      flash.classList.remove('on');
+    };
+
+    const frame = ts => {
+      if (!running) return;
+      raf = requestAnimationFrame(frame);
+      const now = ts / 1000;
+      const dt = Math.min(now - last, 0.05);
+      last = now;
+      const t = now - t0;
+
+      allMats.forEach(m => { m.uniforms.uTime.value = now; });
+
+      if (phase === 0) {
+        const k = Math.min(t / TUNNEL_TIME, 1);
+        tunnelDist += dt * (30 + 320 * k * k);
+        tunnelMat.uniforms.uDist.value = tunnelDist;
+        const cyc = t % 2.2;
+        const blink = cyc > 2.0 ? Math.sin((cyc - 2.0) / 0.2 * Math.PI) : 0;
+        eye.scale.y = 5 * (1 - 0.9 * blink);
+        if (t > TUNNEL_TIME - 0.6 && !flashed) { flashed = true; flash.classList.add('on'); }
+        if (t >= TUNNEL_TIME) {
+          phase = 1; roomT0 = t;
+          tunnel.visible = false; eye.visible = false; room.visible = true;
+          camera.position.copy(camStart);
+          controls.target.set(0, 9, 0);
+          controls.enabled = true;
+          controls.update();
+          flash.classList.remove('on');
+        }
+      } else {
+        const rt = t - roomT0;
+        const fade = Math.min(rt / 1.6, 1);
+        orbitMat.uniforms.uReveal.value = easeOut(Math.min(rt / 3.2, 1));
+        roomMats.forEach(m => { m.uniforms.uOpacity.value = fade; });
+        if (rt < 3.5) {
+          camera.position.lerpVectors(camStart, camEnd, easeOut(rt / 3.5));
+        } else {
+          controls.autoRotate = true;
+        }
+        controls.update();
+
+        const beat = 1 + 0.07 * Math.pow(Math.max(0, Math.sin(rt * 3.2)), 8);
+        heartGroup.scale.setScalar(beat);
+        heartGroup.position.y = 26 + Math.sin(rt * 0.9) * 0.8;
+        beam.position.y = heartGroup.position.y;
+        const face = Math.atan2(camera.position.x, camera.position.z);
+        heartGroup.rotation.y = face;
+        beam.rotation.y = face;
+
+        floaters.forEach(f => {
+          const a = f.ph + rt * f.speed;
+          f.sp.position.set(Math.cos(a) * f.r, f.h + Math.sin(rt * 0.9 + f.ph * 3) * 1.4, Math.sin(a) * f.r);
+          f.sp.material.opacity = f.base * fade;
+        });
+      }
+
+      composer.render();
+    };
+
+    const onResize = () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      composer.setSize(innerWidth, innerHeight);
+      computeCam();
+    };
+    window.addEventListener('resize', onResize);
+
+    return {
+      start() {
+        running = false;
+        cancelAnimationFrame(raf);
+        reset();
+        running = true;
+        last = performance.now() / 1000;
+        t0 = last;
+        raf = requestAnimationFrame(frame);
+      },
+      stop() {
+        running = false;
+        cancelAnimationFrame(raf);
+        flash.classList.remove('on');
+      }
+    };
+  }
+
+  let api = null, building = null, wanted = false;
+
+  async function openScene() {
+    wanted = true;
+    try {
+      if (!api) api = await (building || (building = build()));
+    } catch (e) {
+      building = null;
+      console.error(e);
+      return;
+    }
+    if (wanted) api.start();
+  }
+
+  function closeScene() {
+    wanted = false;
+    if (api) api.stop();
+  }
+
+  loveBtn.addEventListener('pointerenter', () => { loadLibs().catch(() => { libs = null; }); }, { once: true });
+  window.addEventListener('love:open', openScene);
+  window.addEventListener('love:close', closeScene);
 </script>
 </body>
 </html>
