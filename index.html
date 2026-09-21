@@ -21,12 +21,16 @@
   :focus-visible { outline:2px solid var(--fg); outline-offset:3px; }
 
   /* Background video */
-  #bg { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; }
+  #bg { position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2; opacity:0; transition:opacity 1.8s ease .4s; }
+  body.in #bg { opacity:1; }
   .shade { position:fixed; inset:0; z-index:-1; background:rgba(9,9,10,.8); }
 
   /* Splash */
   #splash { position:fixed; inset:0; z-index:50; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; cursor:pointer; transition:opacity .6s; }
-  #splash.hide { opacity:0; pointer-events:none; }
+  #splash.go { pointer-events:none; }
+  #splash.go img { transform:scale(1.4); opacity:0; filter:blur(10px); transition:transform 1s cubic-bezier(.2,.7,.2,1), opacity .8s ease, filter .8s ease; }
+  #splash.go p { opacity:0; transition:opacity .25s; }
+  #splash.hide { opacity:0; pointer-events:none; transition:opacity .7s ease .3s; }
   #splash img { width:min(64vw,300px); aspect-ratio:1; object-fit:cover; border-radius:6px; }
   #splash p { color:var(--mute); font-size:.95rem; text-decoration:underline; text-underline-offset:5px; text-decoration-color:var(--line); }
   #splash:hover p { color:var(--fg); }
@@ -41,8 +45,8 @@
   .views.off #views { display:none; }
 
   /* Layout */
-  #page { opacity:0; transition:opacity .9s; }
-  #page.show { opacity:1; }
+  .rise { opacity:0; transform:translateY(22px); }
+  #page.show .rise { opacity:1; transform:none; transition:opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); transition-delay:calc(.5s + var(--i,0) * .11s); }
   .layout { max-width:1040px; margin:0 auto; padding:96px 28px 48px; display:grid; grid-template-columns:290px 1fr; column-gap:80px; }
   .side { position:sticky; top:84px; align-self:start; }
   .side img { width:132px; height:132px; object-fit:cover; border-radius:6px; display:block; background:#2a2a2a; }
@@ -70,15 +74,65 @@
 
   /* Friends */
   .friends-label { margin-top:32px; margin-bottom:12px; color:var(--mute); font-size:.92rem; }
-  .friends { display:flex; gap:12px; }
-  .ph { display:grid; place-items:center; width:56px; height:56px; border-radius:6px; background:#2a2a2a; color:#bdbcb8; transition:background .2s; }
+  .friends { display:flex; flex-wrap:wrap; gap:22px; }
+  .friend { display:flex; flex-direction:column; align-items:center; gap:8px; width:76px; }
+  .friend small { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--mute); font-size:.82rem; transition:color .2s; }
+  .friend:hover small { color:var(--fg); }
+  .ph, .friend img { width:60px; height:60px; border-radius:8px; object-fit:cover; display:grid; place-items:center; background:#2a2a2a; color:#bdbcb8; transition:transform .25s ease; }
   .ph svg { width:24px; height:24px; }
-  .friends a:hover .ph { background:#3a3a3a; }
-  .friends a img { width:56px; height:56px; border-radius:6px; object-fit:cover; display:block; }
+  .friend:hover .ph, .friend:hover img { transform:translateY(-3px); }
+  .who { display:inline-flex; align-items:center; gap:10px; }
+  .who em { font-style:normal; }
+  .who img { width:24px; height:24px; border-radius:5px; object-fit:cover; display:block; }
+  img[hidden], .ph[hidden] { display:none !important; }
 
   iframe { display:block; border:0; border-radius:12px; }
 
-  footer { max-width:1040px; margin:0 auto; padding:24px 28px 56px; color:var(--mute); font-size:.85rem; }
+  footer { max-width:1040px; margin:0 auto; padding:24px 28px 130px; color:var(--mute); font-size:.85rem; }
+
+
+  /* Bottom navigation (animated) */
+  .menu { --duration:.45s; --cubic:cubic-bezier(.4,0,.2,1); --color-1:#9a9995; --color-2:#f2f1ee;
+    position:fixed; left:0; right:0; bottom:18px; margin:0 auto; z-index:30; width:36em; max-width:94vw; height:8.4em; padding:0 1.6em;
+    font-size:min(10px, 2.4vw); display:flex; align-items:center; justify-content:center; user-select:none; -webkit-tap-highlight-color:transparent;
+    background:rgba(22,22,23,.94); border:1px solid var(--line); border-radius:4.2em;
+    scale:0; animation:scale-up .8s cubic-bezier(.2,.7,.2,1) 1s forwards; animation-play-state:paused; }
+  body.in .menu { animation-play-state:running; }
+  @keyframes scale-up { from { scale:0; } to { scale:1; } }
+  .menu__item { all:unset; flex-grow:1; display:flex; cursor:pointer; overflow:hidden; padding-top:.5em; position:relative; align-items:center; justify-content:center; color:var(--color-1); transition:flex-grow var(--duration) var(--cubic), color .3s; }
+  .menu__item:focus-visible { outline:2px solid var(--color-2); outline-offset:-2px; border-radius:2em; }
+  .menu__icon { font-size:1.05em; stroke:currentColor; transition:transform var(--duration) var(--cubic); }
+  .menu__item::before { top:9%; left:18.4%; width:1.5em; height:1.5em; content:" "; position:absolute; border-radius:50%; transform:scale(0); transform-origin:center; background-color:rgba(255,255,255,.12); transition:transform var(--duration) var(--cubic); }
+  .menu__item::after { left:0; bottom:0; content:" "; height:.25em; position:absolute; border-radius:2em; transform-origin:left center; background-color:currentColor; width:calc(var(--lineWidth, 40px) + 5px); transform:translate3d(3em,0,0) scaleX(0); transition:transform calc(var(--duration) + .2s) var(--cubic); }
+  .menu__text { left:4.15em; font-size:1.5em; font-weight:600; position:absolute; text-transform:capitalize; letter-spacing:.01em; transform:translate3d(0,109%,0); transition:transform calc(var(--duration) / 3.7); }
+  .menu__item.active { flex-grow:2.7; color:var(--color-2); }
+  .menu__item.active .menu__icon { transform:translate3d(-95%,0,0); }
+  .menu__item.active::before { transform:scale(1); }
+  .menu__item.active::after { transform:translate3d(6.3em,0,0) scaleX(1); transition:transform var(--duration) var(--cubic); }
+  .menu__text.active { transform:translate3d(0,0,0); transition:transform calc(var(--duration) / 1.5); }
+  .icon { --duration-icon:1s; fill:none; width:2.5em; height:2.5em; display:block; stroke-width:15; stroke-miterlimit:10; }
+  .active #home-anm { animation:home var(--duration-icon); }
+  @keyframes home { 25% { transform:translate3d(0,-.8em,0); } 50% { transform:translate3d(0,.5em,0); } }
+  #strategy-anm { transform:scaleX(.85); transform-origin:center; }
+  .active #strategy-anm { animation:strategy var(--duration-icon); }
+  @keyframes strategy { 50% { transform:scaleX(1); } 100% { transform:scaleX(.85); } }
+  .active #strategy-cir1 { animation:strategy-cir1 var(--duration-icon); }
+  .active #strategy-cir2 { animation:strategy-cir2 var(--duration-icon) .1s; }
+  .active #strategy-cir3 { animation:strategy-cir3 var(--duration-icon) .2s; }
+  @keyframes strategy-cir1 { 50% { transform:translate3d(-.7em,-.7em,0); } 100% { transform:translate3d(0,0,0); } }
+  @keyframes strategy-cir2 { 35% { transform:translate3d(0,-.7em,0); } 100% { transform:translate3d(0,0,0); } }
+  @keyframes strategy-cir3 { 35% { transform:translate3d(.7em,-.7em,0); } 100% { transform:translate3d(0,0,0); } }
+  .active #period-anm { transform-origin:center 100%; animation:period var(--duration-icon); }
+  .active #period-cir { transform-origin:center; animation:period-cir var(--duration-icon); }
+  .active #period-line { stroke-dasharray:66; animation:period-line calc(var(--duration-icon) / 2.5) reverse; }
+  @keyframes period { 35% { transform:scaleY(.85); } 60%,70% { transform:scaleY(1.2); } 100% { transform:scaleY(1); } }
+  @keyframes period-cir { 0% { opacity:0; } 35% { opacity:1; transform:translate3d(15%,-55%,0); } 60% { opacity:0; transform:translate3d(-8%,-50%,0); } }
+  @keyframes period-line { 100% { stroke-dashoffset:66; } }
+  .active #security-cir { transform-box:fill-box; transform-origin:center; animation:security-cir calc(var(--duration-icon) / 1.5); }
+  @keyframes security-cir { 0% { transform:scale(0); } 100% { transform:scale(1); } }
+  .active #security-strok { stroke-dasharray:96; animation:security-strok calc(var(--duration-icon) / 1.2); }
+  @keyframes security-strok { 0% { stroke-dashoffset:60; } 100% { stroke-dashoffset:230; } }
+  section { scroll-margin-top:24px; }
 
   @media (max-width:860px) {
     .layout { grid-template-columns:1fr; padding-top:84px; row-gap:48px; }
@@ -86,7 +140,7 @@
     .side img { width:104px; height:104px; }
     h1 { font-size:3.6rem; }
   }
-  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } .menu { scale:1; } }
 </style>
 </head>
 <body>
@@ -107,49 +161,119 @@
   <span id="views">—</span>
 </div>
 
+
+<nav class="menu" aria-label="Page sections">
+  <button class="menu__item active" data-target="top" aria-label="Home">
+    <div class="menu__icon">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 179.1 145">
+        <g id="home-anm">
+          <path stroke-linejoin="round" stroke-linecap="round" d="M70.5,80.1h40.7"/>
+          <path d="M35,64v80"/>
+          <path d="M145.1,143V63"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M24.9,70l65.7-50.7L156.3,70"/>
+        </g>
+        <path stroke-linejoin="round" d="M145.1,117.6v33.1c0,1.5-1.2,2.8-2.8,2.8h-28.4c-1.5,0-2.8-1.2-2.8-2.8V126c0-11.3-9.2-20.5-20.5-20.5l0,0c-11.3,0-20.5,9.2-20.5,20.5v27.5h16H37.8c-1.5,0-2.8-1.2-2.8-2.8v-34.2"/>
+      </svg>
+    </div>
+    <strong class="menu__text active">home</strong>
+  </button>
+
+  <button class="menu__item" data-target="about" aria-label="About">
+    <div class="menu__icon">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 179.1 145">
+        <g id="strategy-anm">
+          <path d="M84.1,50.4L72,64.7c-2,2.4-5.2,3.5-8.3,3l-40.1-6.8c-3.2-0.6-5.8,2.4-4.8,5.5L42,127.9c1.2,3.6,4.6,6.1,8.4,6.1h81.6c3.9,0,7.3-2.6,8.5-6.3l21.5-61.4c0.9-3-1.7-6-4.9-5.4l-38.3,6.7c-3,0.6-6.2-0.5-8.2-2.8L97.4,50.2C93.8,46.3,87.6,46.3,84.1,50.4z"/>
+        </g>
+        <path stroke-linecap="round" d="M38.8,153.5h105.5"/>
+        <path stroke-linecap="round" d="M66.8,112.5h49.5"/>
+        <path id="strategy-cir1" stroke-width="0" fill="currentColor" d="M32.4,37.5c0,5.8-4.7,10.5-10.5,10.5s-10.5-4.7-10.5-10.5S16.1,27,21.9,27S32.4,31.7,32.4,37.5z"/>
+        <path id="strategy-cir2" stroke-width="0" fill="currentColor" d="M102.3,23.5c0,5.8-4.7,10.5-10.5,10.5s-10.5-4.7-10.5-10.5S86,13,91.8,13S102.3,17.7,102.3,23.5z"/>
+        <path id="strategy-cir3" stroke-width="0" fill="currentColor" d="M169.6,37.5c0,5.8-4.7,10.5-10.5,10.5s-10.5-4.7-10.5-10.5S153.3,27,159.1,27S169.6,31.7,169.6,37.5z"/>
+      </svg>
+    </div>
+    <strong class="menu__text">about</strong>
+  </button>
+
+  <button class="menu__item" data-target="links" aria-label="Links">
+    <div class="menu__icon">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 179.1 145">
+        <path stroke-linecap="round" d="M94,139c-4.8,1.3-8.8,1.7-11.4,1.8c0,0-18.3,1.1-36.9-11.6c-1.9-1.3-4.7-3.2-7.8-6.2c-1.7-1.6-2.9-2.9-3.4-3.6c0,0-3.6-4.2-6.1-8.6c-4.6-8.4-5.4-18.9-5.5-21l0,0V75.5v-39c0-0.7,0.5-1.3,1.2-1.5l58-14.2c0.2-0.1,0.5-0.1,0.7,0l57.9,14.7c0.7,0.2,1.1,0.8,1.1,1.5v29.7"/>
+        <path id="security-cir" stroke-linecap="round" d="M158.3,120.7c0,18.3-14.8,33.1-33.1,33.1s-33-14.8-33-33.1s14.8-33.1,33.1-33.1S158.3,102.4,158.3,120.7z"/>
+        <g id="security-strok">
+          <path stroke-linecap="round" d="M151.1,104.5l-25,25c-1.3,1.3-3.5,1.3-4.9,0l-9.1-9.1"/>
+          <path stroke-linecap="round" d="M82.6,43L23.1,62.3"/>
+          <path stroke-linecap="round" d="M82.6,68.4L23.1,87.6"/>
+        </g>
+      </svg>
+    </div>
+    <strong class="menu__text">links</strong>
+  </button>
+
+  <button class="menu__item" data-target="music" aria-label="Music">
+    <div class="menu__icon">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 179.1 145">
+        <g id="period-cir">
+          <path fill="currentColor" stroke-width="0" d="M96.5,141.7c0,3.9-3.1,7-7,7s-7-3.1-7-7s3.1-7,7-7C93.4,134.6,96.5,137.8,96.5,141.7z"/>
+          <path fill="currentColor" stroke-width="0" d="M78.2,126.7c0,3.9-3.1,7-7,7s-7-3.1-7-7c0-3.9,3.1-7,7-7S78.2,122.8,78.2,126.7z"/>
+          <path fill="currentColor" stroke-width="0" d="M110.6,120.5c0,3.9-3.1,7-7,7s-7-3.1-7-7s3.1-7,7-7S110.6,116.6,110.6,120.5z"/>
+        </g>
+        <g id="period-anm">
+          <path stroke-linecap="round" d="M30.8,24.7h118.3 M117.3,71.2l9.7-6.7c0.7-0.4,1.1-1.1,1.1-1.9V24.7H50v37.8"/>
+          <path stroke-linecap="round" d="M149.4,153.3H30.6 M75.5,90.7l-23.1,21.2c-1.6,1.4-2.4,3.4-2.4,5.6v35.9h78.1V113"/>
+          <g id="period-line">
+            <path stroke-linecap="round" d="M50,62.5l40,44.2"/>
+            <path stroke-linecap="round" d="M128.1,111.7L95.2,73.4"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <strong class="menu__text">music</strong>
+  </button>
+</nav>
+
 <div id="page">
   <div class="layout">
     <aside class="side">
-      <img src="https://files.catbox.moe/5sf9f5.webp" alt="Lynxz">
-      <h1>Lynxz</h1>
-      <p class="pron">he/him</p>
-      <p class="quote">I don't code, I imagine.</p>
+      <img class="rise" style="--i:0" src="https://files.catbox.moe/5sf9f5.webp" alt="Lynxz">
+      <h1 class="rise" style="--i:1">Lynxz</h1>
+      <p class="pron rise" style="--i:2">he/him</p>
+      <p class="quote rise" style="--i:3">I don't code, I imagine.</p>
     </aside>
 
     <main>
-      <section>
+      <section id="about" class="rise" style="--i:4">
         <h2>What I run</h2>
         <div class="ledger">
           <div><span>Founder</span><b>2.8K members</b></div>
           <div><span>Developer</span><b>34.8K members</b></div>
           <div><span>Developer for Snow</span><b>200K members</b></div>
         </div>
-        <p class="learn"><strong>Learning</strong>Lua, C++, C#, reverse engineering, debugging, x64dbg, DLLs, and more.</p>
+        <p class="learn"><strong>Learning</strong>Lua, C++, C#, reverse engineering, x64dbg, DLLs, and more.</p>
       </section>
 
-      <section>
+      <section id="links" class="rise" style="--i:5">
         <h2>Find me</h2>
         <div class="links">
-          <a href="https://www.roblox.com/users/11038607/profile" target="_blank" rel="noopener">Roblox <span>My profile</span></a>
-          <a href="https://www.tiktok.com/@lynxgg_1" target="_blank" rel="noopener">TikTok <span>@lynxgg_1</span></a>
-          <a href="https://discord.com/users/916982146822971403" target="_blank" rel="noopener">Discord <span>Direct profile</span></a>
+          <a href="https://www.roblox.com/users/11038607/profile" target="_blank" rel="noopener" data-roblox-id="11038607">Roblox <span class="who"><em data-name>My profile</em><img alt="" hidden></span></a>
+          <a href="https://www.tiktok.com/@lynxgg_1" target="_blank" rel="noopener">TikTok <span class="who"><em>@lynxgg_1</em><img src="https://files.catbox.moe/5sf9f5.webp" alt=""></span></a>
+          <a href="https://discord.com/users/916982146822971403" target="_blank" rel="noopener" data-discord-id="916982146822971403">Discord <span class="who"><em data-name>Direct profile</em><img alt="" hidden></span></a>
         </div>
 
         <p class="friends-label">Best friends</p>
         <div class="friends">
-          <a href="https://discord.com/users/788951604379910164" target="_blank" rel="noopener" aria-label="Friend 1"><span class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span></a>
-          <a href="https://discord.com/users/849544788348108822" target="_blank" rel="noopener" aria-label="Friend 2"><span class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span></a>
+          <a class="friend" href="https://discord.com/users/788951604379910164" target="_blank" rel="noopener" data-discord-id="788951604379910164"><span class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span><img alt="" hidden><small data-name>Friend 1</small></a>
+          <a class="friend" href="https://discord.com/users/849544788348108822" target="_blank" rel="noopener" data-discord-id="849544788348108822"><span class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg></span><img alt="" hidden><small data-name>Friend 2</small></a>
         </div>
       </section>
 
-      <section>
+      <section id="music" class="rise" style="--i:6">
         <h2>Listening to</h2>
         <iframe title="Spotify player" src="https://open.spotify.com/embed/track/0BxE4FqsDD1Ot4YuBXwAPp?utm_source=generator&theme=0" width="100%" height="152" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
       </section>
     </main>
   </div>
 
-  <footer>Lynxz. Last updated Sep 21, 2026.</footer>
+  <footer class="rise" style="--i:7">Lynxz. Last updated Sep 21, 2026.</footer>
 </div>
 
 <script>
@@ -157,7 +281,9 @@
   const splash = $('splash'), page = $('page'), bg = $('bg');
 
   splash.addEventListener('click', () => {
-    splash.classList.add('hide'); page.classList.add('show');
+    if (splash.classList.contains('go')) return;
+    splash.classList.add('go'); document.body.classList.add('in'); page.classList.add('show');
+    setTimeout(() => splash.classList.add('hide'), 250);
     bg.muted = false; bg.volume = 0.6;
     bg.play().catch(() => { bg.muted = true; bg.play().catch(()=>{}); });
   });
@@ -188,6 +314,95 @@
       sessionStorage.setItem('bio-counted', '1');
     } catch (e) { $('views').textContent = '—'; }
   })();
+
+  // Discord profiles (avatar + name) update automatically via Lanyard.
+  // Each person must join https://discord.gg/lanyard once for this to work.
+  const avatarUrl = (id, hash) => hash
+    ? 'https://cdn.discordapp.com/avatars/' + id + '/' + hash + '.' + (hash.startsWith('a_') ? 'gif' : 'png') + '?size=128'
+    : null;
+  document.querySelectorAll('[data-discord-id]').forEach(async el => {
+    const id = el.dataset.discordId;
+    try {
+      const r = await fetch('https://api.lanyard.rest/v1/users/' + id);
+      if (!r.ok) throw 0;
+      const j = await r.json();
+      if (!j.success) throw 0;
+      const u = j.data.discord_user;
+      const name = u.global_name || u.display_name || u.username;
+      const label = el.querySelector('[data-name]');
+      if (label && name) label.textContent = name;
+      const url = avatarUrl(id, u.avatar);
+      const img = el.querySelector('img'), ph = el.querySelector('.ph');
+      if (img && url) {
+        img.onload = () => { img.hidden = false; if (ph) ph.hidden = true; };
+        img.src = url;
+      }
+    } catch (e) { /* keep the placeholder */ }
+  });
+
+  // Roblox name + headshot (Roblox blocks direct browser calls, so this uses public proxies).
+  // If every proxy fails, the plain text stays.
+  (async () => {
+    const el = document.querySelector('[data-roblox-id]');
+    if (!el) return;
+    const id = el.dataset.robloxId;
+    for (const host of ['roproxy.com', 'rprxy.xyz']) {
+      try {
+        const [u, t] = await Promise.all([
+          fetch('https://users.' + host + '/v1/users/' + id).then(r => r.json()),
+          fetch('https://thumbnails.' + host + '/v1/users/avatar-headshot?userIds=' + id + '&size=150x150&format=Png&isCircular=false').then(r => r.json())
+        ]);
+        const name = u && (u.displayName || u.name);
+        const url = t && t.data && t.data[0] && t.data[0].imageUrl;
+        if (!name && !url) continue;
+        const label = el.querySelector('[data-name]'), img = el.querySelector('img');
+        if (label && name) label.textContent = name;
+        if (img && url) { img.onload = () => { img.hidden = false; }; img.src = url; }
+        break;
+      } catch (e) { /* try the next proxy */ }
+    }
+  })();
+
+  // Bottom navigation: jump to sections, highlight follows scrolling
+  const navItems = [...document.querySelectorAll('.menu__item')];
+  const spots = navItems.map(i => i.dataset.target === 'top' ? null : document.getElementById(i.dataset.target));
+  let activeItem = document.querySelector('.menu__item.active');
+  let navLock = 0;
+  function activateNav(item) {
+    if (item === activeItem) return;
+    item.classList.add('active');
+    if (activeItem) {
+      activeItem.classList.remove('active');
+      activeItem.querySelector('.menu__text').classList.remove('active');
+    }
+    activeItem = item;
+  }
+  navItems.forEach(item => {
+    const text = item.querySelector('.menu__text');
+    const setLine = () => item.style.setProperty('--lineWidth', text.offsetWidth + 'px');
+    setLine();
+    window.addEventListener('resize', setLine);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setLine);
+    item.addEventListener('transitionend', e => {
+      if (e.propertyName === 'flex-grow' && item.classList.contains('active')) text.classList.add('active');
+    });
+    item.addEventListener('click', () => {
+      navLock = Date.now() + 900;
+      activateNav(item);
+      const t = item.dataset.target;
+      if (t === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
+      else document.getElementById(t).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  function spy() {
+    if (Date.now() < navLock) return;
+    let idx = 0;
+    const line = window.innerHeight * 0.4;
+    spots.forEach((el, i) => { if (el && el.getBoundingClientRect().top <= line) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) idx = navItems.length - 1;
+    activateNav(navItems[idx]);
+  }
+  window.addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
 </script>
 </body>
 </html>
