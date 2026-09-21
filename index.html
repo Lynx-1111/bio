@@ -86,6 +86,21 @@
 
   iframe { display:block; border:0; border-radius:12px; }
 
+  .pctrl { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  .pctrl[hidden] { display:none; }
+  .pbtn { all:unset; box-sizing:border-box; display:grid; place-items:center; width:46px; height:46px; border-radius:13px; border:1.5px solid var(--line); color:var(--fg); cursor:pointer; transition:transform .2s ease, border-color .2s, background .2s, color .2s; }
+  .pbtn:hover, .pbtn:focus-visible { border-color:rgba(255,255,255,.7); background:rgba(255,255,255,.05); transform:translateY(-2px); }
+  .pbtn svg { width:19px; height:19px; }
+  .pbtn.main { background:#f0342f; border-color:#f0342f; color:#fff; }
+  .pbtn.main:hover, .pbtn.main:focus-visible { background:#ff4540; border-color:#ff4540; }
+  .pbtn .ic-pause { display:none; }
+  .pbtn.playing .ic-play { display:none; }
+  .pbtn.playing .ic-pause { display:block; }
+  .pbtn.main svg, .pbtn.main svg * { fill:currentColor; stroke:currentColor; }
+  .plabel { margin-left:4px; color:var(--mute); font-size:.85rem; }
+
+  #loveHost { position:fixed; left:0; bottom:0; width:300px; height:152px; opacity:0; pointer-events:none; z-index:-5; overflow:hidden; }
+
   footer { max-width:1040px; margin:0 auto; padding:24px 28px 56px; color:var(--mute); font-size:.85rem; }
 
   .menu { --duration:.45s; --cubic:cubic-bezier(.4,0,.2,1); --color-1:#9a9995; --color-2:#f2f1ee;
@@ -247,12 +262,27 @@
       <section id="music" class="rise" style="--i:6">
         <h2>Listening to</h2>
         <div id="sp-embed"></div>
+        <div class="pctrl" id="pctrl" hidden>
+          <button id="pShuffle" class="pbtn" type="button" aria-label="Change song" title="Change song (random)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+          </button>
+          <button id="pPlay" class="pbtn main" type="button" aria-label="Play or pause" title="Play / pause">
+            <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+            <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h4v16H7zM13 4h4v16h-4z"/></svg>
+          </button>
+          <button id="pNext" class="pbtn" type="button" aria-label="Skip song" title="Skip song">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5v15l10-7.5z"/><path d="M19 5v14"/></svg>
+          </button>
+          <span class="plabel" id="pLabel"></span>
+        </div>
       </section>
     </main>
   </div>
 
   <footer class="rise" style="--i:7">Lynxz. Last updated Sep 21, 2026.</footer>
 </div>
+
+<div id="loveHost" aria-hidden="true"><div id="love-sp"></div></div>
 
 <div id="loveModal" class="love-modal" aria-hidden="true">
   <div class="love-veil"></div>
@@ -364,17 +394,24 @@
     }
   })();
 
-  // ---------- Sound ----------
-  // The main video music + Spotify stay OUT of "my love". While it is open, both go quiet
-  // and only the My Love song (below) plays.
-  const LOVE_SONG_URL = 'https://open.spotify.com/album/6cUhnbhBBTFNb6z2w7llGx?si=7045f3a9b4cb4588';   // <- paste the My Love song link here (mp3 / other audio link)
+  const LOVE_SONG_URL = 'https://open.spotify.com/album/6cUhnbhBBTFNb6z2w7llGx?si=7045f3a9b4cb4588';
+  const PLAYLIST_ID = '4QTPYX66wHjtVDSLoi9mNz';
+  const TRACK_LINKS = `
 
-  let userMuted = false, spotifyPlaying = false, loveActive = false, fadeTimer, spController = null;
+  `;
+
+  const TRACKS = [...new Set((TRACK_LINKS.match(/track[\/:][A-Za-z0-9]{22}/g) || []).map(s => s.slice(6)))];
+  const customPlayer = TRACKS.length > 1;
+
+  let userMuted = false, spotifyPlaying = false, loveActive = false, fadeTimer, spController = null, loveCtrl = null;
   try { userMuted = localStorage.getItem('bio-muted') === '1'; } catch (e) {}
   const snd = $('snd');
+
+  const loveMatch = LOVE_SONG_URL.match(/spotify\.com\/(album|track|playlist)\/([A-Za-z0-9]+)/);
+  const loveSpUri = loveMatch ? 'spotify:' + loveMatch[1] + ':' + loveMatch[2] : null;
   const loveAudio = new Audio();
   loveAudio.loop = true; loveAudio.preload = 'none'; loveAudio.volume = 0.7;
-  if (LOVE_SONG_URL) loveAudio.src = LOVE_SONG_URL;
+  if (LOVE_SONG_URL && !loveSpUri) loveAudio.src = LOVE_SONG_URL;
 
   function fadeVolume(to) {
     clearInterval(fadeTimer);
@@ -400,40 +437,84 @@
     userMuted = !userMuted;
     try { localStorage.setItem('bio-muted', userMuted ? '1' : '0'); } catch (e) {}
     showMuted(); applyAudio();
+    if (userMuted && loveCtrl && loveActive) { try { loveCtrl.pause(); } catch (e) {} }
+    if (!userMuted && loveCtrl && loveActive) { try { loveCtrl.play(); } catch (e) {} }
   });
 
   window.addEventListener('love:open', () => {
     loveActive = true;
     try { if (spController && spController.pause) spController.pause(); } catch (e) {}
     applyAudio();
-    if (LOVE_SONG_URL) { try { loveAudio.currentTime = 0; } catch (e) {} loveAudio.play().catch(() => {}); }
+    if (loveSpUri) {
+      if (loveCtrl && !userMuted) { try { loveCtrl.play(); } catch (e) {} }
+    } else if (LOVE_SONG_URL) {
+      try { loveAudio.currentTime = 0; } catch (e) {}
+      loveAudio.play().catch(() => {});
+    }
   });
   window.addEventListener('love:close', () => {
     loveActive = false;
+    try { if (loveCtrl) loveCtrl.pause(); } catch (e) {}
     loveAudio.pause();
     applyAudio();
   });
 
-  const SPOTIFY_ID = '0BxE4FqsDD1Ot4YuBXwAPp';
+  const pctrl = $('pctrl'), pPlay = $('pPlay'), pNext = $('pNext'), pShuffle = $('pShuffle'), pLabel = $('pLabel');
+  let trackIdx = 0, advancing = false;
+
+  function updateLabel() {
+    pLabel.textContent = customPlayer ? (trackIdx + 1) + ' / ' + TRACKS.length : '';
+  }
+  function loadTrack(i) {
+    if (!spController || !customPlayer) return;
+    trackIdx = (i + TRACKS.length) % TRACKS.length;
+    updateLabel();
+    spController.loadUri('spotify:track:' + TRACKS[trackIdx]);
+    setTimeout(() => { try { spController.play(); } catch (e) {} }, 700);
+  }
+  pPlay.addEventListener('click', () => { if (spController) spController.togglePlay(); });
+  pNext.addEventListener('click', () => loadTrack(trackIdx + 1));
+  pShuffle.addEventListener('click', () => {
+    if (TRACKS.length < 2) return;
+    let n = trackIdx;
+    while (n === trackIdx) n = Math.floor(Math.random() * TRACKS.length);
+    loadTrack(n);
+  });
+
   let spReady = false;
   function spotifyFallback() {
     const holder = $('sp-embed');
     if (!holder || spReady) return;
     const f = document.createElement('iframe');
     f.title = 'Spotify player';
-    f.src = 'https://open.spotify.com/embed/track/' + SPOTIFY_ID + '?utm_source=generator&theme=0';
-    f.width = '100%'; f.height = '152';
+    f.src = 'https://open.spotify.com/embed/playlist/' + PLAYLIST_ID + '?utm_source=generator&theme=0';
+    f.width = '100%'; f.height = '352';
     f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
     holder.replaceWith(f);
   }
   window.onSpotifyIframeApiReady = IFrameAPI => {
-    IFrameAPI.createController($('sp-embed'), { uri: 'spotify:track:' + SPOTIFY_ID, width: '100%', height: 152 }, controller => {
+    const mainUri = customPlayer ? 'spotify:track:' + TRACKS[0] : 'spotify:playlist:' + PLAYLIST_ID;
+    IFrameAPI.createController($('sp-embed'), { uri: mainUri, width: '100%', height: customPlayer ? 152 : 352 }, controller => {
       spReady = true; spController = controller;
+      if (customPlayer) { pctrl.hidden = false; updateLabel(); }
       controller.addListener('playback_update', e => {
-        const playing = !!e.data && e.data.isPaused === false;
+        const d = e.data || {};
+        const playing = d.isPaused === false;
+        pPlay.classList.toggle('playing', playing);
         if (playing !== spotifyPlaying) { spotifyPlaying = playing; applyAudio(); }
+        if (customPlayer && d.duration && d.position >= d.duration - 400 && !advancing) {
+          advancing = true;
+          loadTrack(trackIdx + 1);
+          setTimeout(() => { advancing = false; }, 2500);
+        }
       });
     });
+    if (loveSpUri) {
+      IFrameAPI.createController($('love-sp'), { uri: loveSpUri, width: 300, height: 152 }, controller => {
+        loveCtrl = controller;
+        if (loveActive && !userMuted) { try { controller.play(); } catch (e) {} }
+      });
+    }
   };
   const spScript = document.createElement('script');
   spScript.src = 'https://open.spotify.com/embed/iframe-api/v1';
@@ -480,10 +561,6 @@
   window.addEventListener('scroll', () => requestAnimationFrame(spy), { passive: true });
 </script>
 <script type="module">
-  // Fill these in later:
-  //   photo   = link to the picture shown beside the text (left page)
-  //   caption = the text shown under the title, e.g. 'I love you because ...'
-  // While a caption is empty the page shows "???".
   const MEMORIES = [
     { text: 'My love', photo: '', caption: '' },
     { text: 'Forever', photo: '', caption: '' },
@@ -746,7 +823,6 @@
       o.s = .8 + Math.random() * 1.8;
     }, starMat));
 
-    // the galaxy that swells up at the end of the tunnel
     const introGroup = new THREE.Group();
     introGroup.add(makePoints(compact ? 30000 : 65000, galaxyFill(compact ? 3000 : 6000), introMat));
     introGroup.add(new THREE.Mesh(new THREE.SphereGeometry(HOLE, 48, 48), new THREE.MeshBasicMaterial({ color: 0x000000 })));
@@ -776,7 +852,6 @@
       const { sp, w, h } = textSprite(mem.text);
       const hgt = 2.0;
       sp.scale.set(hgt * w / h, hgt, 1);
-      // spread further out from the black hole (past the bright bulge) so each word stays legible
       sp.userData = { mem, ang: i / MEMORIES.length * TAU + rnd(-.35, .35), r: rnd(15, 24), y: rnd(-4.5, 6.5), spd: rnd(.015, .04) * (Math.random() < .5 ? -1 : 1), ph: Math.random() * TAU, hs: 1, w: hgt * w / h, h: hgt };
       galaxyGroup.add(sp); memSprites.push(sp);
     });
@@ -902,8 +977,6 @@
       g.strokeStyle = 'rgba(205,196,236,.14)'; g.lineWidth = 2; g.strokeRect(44, 44, 552, 792);
       let seed = 21; const sr = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
       for (let i = 0; i < 26; i++) drawStar(g, 70 + sr() * 500, 70 + sr() * 740, 1.5 + sr() * 4, 'rgba(231,225,245,.3)');
-      // polaroid-style card (the photo plane sits on the dark square).
-      // Kept off pure-white so the bloom pass doesn't blow it out.
       g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 16; g.shadowOffsetY = 6;
       g.fillStyle = '#c8c0a8'; g.fillRect(120, 150, 400, 500); g.restore();
       g.fillStyle = '#0f0b22'; g.fillRect(140, 170, 360, 350);
@@ -911,7 +984,6 @@
       drawStar(g, 320, 330, 16, 'rgba(205,196,236,.35)');
       g.font = 'italic 400 30px "Instrument Serif", Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillStyle = 'rgba(196,186,228,.5)'; g.fillText('???', 320, 385);
-      // washi-tape strip across the top edge
       g.save(); g.translate(320, 150); g.rotate(-0.035);
       g.shadowColor = 'rgba(0,0,0,.3)'; g.shadowBlur = 5; g.shadowOffsetY = 2;
       const tape = g.createLinearGradient(-64, 0, 64, 0);
@@ -922,7 +994,6 @@
       g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 1;
       for (let i = -50; i <= 50; i += 13) { g.beginPath(); g.moveTo(i, -14); g.lineTo(i + 7, 14); g.stroke(); }
       g.restore();
-      // memory caption, written on the polaroid's own white strip beneath the photo
       g.font = 'italic 400 18px "Instrument Serif", Georgia, serif';
       g.fillStyle = 'rgba(0,0,0,.55)';
       g.fillText('a memory', 320, 555);
@@ -941,7 +1012,6 @@
     const leftPageMat = new THREE.MeshBasicMaterial({ map: leftPageTexture() });
     const pageMat = new THREE.MeshBasicMaterial({ map: pageTexture({ text: '', caption: '' }) });
 
-    // back cover + right page block (these never move)
     const backCover = new THREE.Mesh(new THREE.BoxGeometry(BW, BH, CT), [coverSideMat, coverSideMat, coverSideMat, coverSideMat, endpaperMat, coverFaceMat]);
     backCover.position.set(0, 0, -ZC);
     book.add(backCover);
@@ -950,7 +1020,6 @@
     pagesRight.position.set(PCX, 0, -PD / 4);
     book.add(pagesRight);
 
-    // front cover + left page block share one hinge at the spine
     const frontPivot = new THREE.Group();
     frontPivot.position.set(PIVOT_X, 0, 0);
     book.add(frontPivot);
@@ -961,7 +1030,6 @@
     pagesLeft.position.set(PCX - PIVOT_X, 0, PD / 4);
     frontPivot.add(pagesLeft);
 
-    // the photo, laid over the dark square of the polaroid on the left page
     const PHOTO_W = 3.5, PHOTO_H = 3.28, PHOTO_Y = 0.89;
     const photoPlane = new THREE.Mesh(new THREE.PlaneGeometry(PHOTO_W, PHOTO_H), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
     photoPlane.position.set(LEFT_CX, PHOTO_Y, 0.03); photoPlane.visible = false;
@@ -974,7 +1042,6 @@
     ribbon.position.set(1.1, -PH / 2 - 0.75, 0); ribbon.geometry.translate(0, 0, 0);
     book.add(ribbon);
 
-    // the strap: an elastic loop that wraps around the CLOSED book
     const strapGroup = new THREE.Group();
     strapGroup.position.x = STRAP_REST;
     book.add(strapGroup);
@@ -1014,12 +1081,10 @@
     let phase = 0, t0 = 0, roomT0 = 0, tunnelDist = 0, flashed = false, roomReady = false;
     let running = false, raf = 0, last = 0;
 
-    // galaxy tilt / move
     const vel = new THREE.Vector2();
     const axisR = new THREE.Vector3(), axisU = new THREE.Vector3(), qTmp = new THREE.Quaternion();
     let dragging = false, lastX = 0, lastY = 0, mode = 'tilt', anim = null;
 
-    // book
     let bookState = 'hidden', strapX = STRAP_REST, strapV = 0, strapSquash = 1, swayCur = 0, photoK = 0, photoTok = 0;
     let bookDim = 0;
     const spinT = { x: 0, y: 0 };
@@ -1066,7 +1131,6 @@
       new THREE.TextureLoader().setCrossOrigin('anonymous').load(url, tex => {
         if (tok !== photoTok) { tex.dispose(); return; }
         tex.colorSpace = THREE.SRGBColorSpace; photoTex = tex;
-        // fill the square without stretching the picture
         const ia = tex.image.width / tex.image.height, pa = PHOTO_W / PHOTO_H;
         if (ia > pa) { tex.repeat.set(pa / ia, 1); tex.offset.set((1 - pa / ia) / 2, 0); }
         else { tex.repeat.set(1, ia / pa); tex.offset.set(0, (1 - ia / pa) / 2); }
@@ -1107,7 +1171,6 @@
         bookState = 'unstrap';
         tween('book', .55, k => { strapX = lerp(STRAP_REST, STRAP_OFF, k); }, easeInOutCubic, () => {
           bookState = 'opening';
-          // negative angle: the cover swings TOWARD the viewer and lands flat on the left
           tween('book', 1.3, k => {
             frontPivot.rotation.y = -Math.PI * k;
             book.position.x = BOOK_SHIFT * k;
@@ -1128,7 +1191,6 @@
       const x0 = strapX, h0 = photoK;
       spinT.x = 0; spinT.y = 0;
       tween('book', .3, k => { photoK = h0 * (1 - k); });
-      // 1) strap slides clear of the book, 2) cover closes, 3) strap slides back on
       tween('book', .35, k => { strapX = lerp(x0, STRAP_OFF, k); }, easeOut, () => {
         tween('book', 1.05, k => {
           frontPivot.rotation.y = -Math.PI * (1 - k);
@@ -1303,14 +1365,11 @@
       stepTweens(dt);
       allMats.forEach(m => { m.uniforms.uTime.value = now; });
 
-      // fade the galaxy/particles down while the book is on screen so nothing
-      // visually bleeds in front of the pages
       const dimTarget = bookRoot.visible ? 1 : 0;
       bookDim += (dimTarget - bookDim) * Math.min(1, dt * 3.2);
       const dimMul = 1 - bookDim * 0.88;
 
       if (phase === 0) {
-        // fly through the tunnel, accelerating, with a galaxy swelling at the end
         const k = Math.min(t / TUNNEL_TIME, 1);
         tunnelDist += dt * (30 + 320 * k * k);
         tunnelMat.uniforms.uDist.value = tunnelDist;
@@ -1420,7 +1479,7 @@
   async function openScene() {
     wanted = true;
     if (!api) {
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));   // let the veil fade in before the heavy build starts
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
     }
     try {
       if (!api) api = await (building || (building = build()));
