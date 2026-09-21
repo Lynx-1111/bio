@@ -367,7 +367,7 @@
   // ---------- Sound ----------
   // The main video music + Spotify stay OUT of "my love". While it is open, both go quiet
   // and only the My Love song (below) plays.
-  const LOVE_SONG_URL = '';   // <- paste the My Love song link here (mp3 / other audio link)
+  const LOVE_SONG_URL = 'https://open.spotify.com/album/6cUhnbhBBTFNb6z2w7llGx?si=7045f3a9b4cb4588';   // <- paste the My Love song link here (mp3 / other audio link)
 
   let userMuted = false, spotifyPlaying = false, loveActive = false, fadeTimer, spController = null;
   try { userMuted = localStorage.getItem('bio-muted') === '1'; } catch (e) {}
@@ -637,7 +637,6 @@
     allMats.push(dustMat);
     const roomMats = [orbitMat, dustMat, heartMat, starMat];
 
-    /* ---------- tunnel (the fly-in when you press "my love") ---------- */
     const PINKS = [[0.6, 0.25, 1], [0.45, 0.15, 0.9], [0.75, 0.4, 1], [0.9, 0.7, 1], [0.3, 0.2, 0.9]];
     const tunnel = makePoints(compact ? 5500 : 9500, (i, o) => {
       const a = Math.random() * TAU, r = 3 + Math.pow(Math.random(), 1.7) * 85;
@@ -647,7 +646,6 @@
     }, tunnelMat);
     scene.add(tunnel);
 
-    /* ---------- galaxy room ---------- */
     const room = new THREE.Group(); scene.add(room);
     const RING = compact ? 9000 : 16000, ARMS = compact ? 110000 : 260000, HOLE = 3.2;
     const lerp3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
@@ -755,8 +753,6 @@
     introGroup.rotation.x = Math.PI / 2 - 0.45;
     scene.add(introGroup);
 
-    /* ---------- memory words (tap one to open the book) ----------
-       These orbit inside galaxyGroup so they tilt/spin together with the black hole. */
     const memSprites = [];
     function textSprite(text) {
       const fs = 92, pad = 48;
@@ -785,18 +781,6 @@
       galaxyGroup.add(sp); memSprites.push(sp);
     });
 
-    /* ================================================================
-       THE BOOK
-       Layout (book-local units, book centred on x = 0 while closed):
-         back cover  z -0.575 .. -0.435
-         right pages z -0.435 ..  0        (stay on the back cover)
-         left pages  z  0     ..  0.435    (ride on the front cover)
-         front cover z  0.435 ..  0.575    (hinged at the spine, x = -BW/2)
-       Opening the cover rotates it by -PI about the spine, so it swings
-       TOWARD the viewer and lands flat on the left. Both page blocks end
-       up with their faces on z = 0, so the open spread is perfectly flat
-       and nothing pokes through anything.
-       ================================================================ */
     const BW = 6.4, BH = 8.6, BD = 1.15, CT = 0.14;
     const ZC = BD / 2 - CT / 2;
     const PD = BD - 2 * CT;
@@ -1024,7 +1008,6 @@
     cord.rotation.z = Math.PI / 2; cord.position.set(STRAP_REST, 0, -BD / 2 - 0.055); cord.visible = false;
     book.add(cord);
 
-    /* ---------- state ---------- */
     const modeBtns = [...modeBar.querySelectorAll('button')];
     window.__loveBook = false;
 
@@ -1175,7 +1158,6 @@
     }
     window.addEventListener('keydown', e => { if (e.key === 'Escape' && window.__loveBook) closeBook(); });
 
-    /* ---------- tilt / move (same behaviour as the first version) ---------- */
     const setMode = m => {
       mode = m;
       controls.enableRotate = m === 'move';
@@ -1197,7 +1179,6 @@
       vel.set(0, 0);
     };
 
-    /* ---------- pointer handling ---------- */
     function updateHover(e) {
       setPointer(e);
       if (bookState === 'open') {
@@ -1286,7 +1267,6 @@
       computeCam();
     });
 
-    /* ---------- reset (runs every time "my love" is pressed) ---------- */
     const reset = () => {
       killBook(); tweens.length = 0;
       phase = 0; tunnelDist = 0; flashed = false; roomReady = false; bookDim = 0;
@@ -1312,7 +1292,6 @@
       dom.style.cursor = '';
     };
 
-    /* ---------- render loop ---------- */
     const frame = ts => {
       if (!running) return;
       raf = requestAnimationFrame(frame);
@@ -1436,7 +1415,6 @@
     };
   }
 
-  /* ---------- open / close the scene ---------- */
   let api = null, building = null, wanted = false;
 
   async function openScene() {
