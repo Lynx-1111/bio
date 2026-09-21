@@ -1017,7 +1017,7 @@
       mem = mem || {};
       const c = document.createElement('canvas'); c.width = 800; c.height = 1000;
       const g = c.getContext('2d');
-      g.fillStyle = '#f4f0e2'; g.fillRect(0, 0, 800, 1000);
+      g.fillStyle = '#e8e3d2'; g.fillRect(0, 0, 800, 1000);
       g.fillStyle = '#0f0b22'; g.fillRect(40, 40, 720, 700);
       g.strokeStyle = 'rgba(190,180,230,.35)'; g.lineWidth = 3; g.strokeRect(40, 40, 720, 700);
       drawStar(g, 400, 350, 30, 'rgba(205,196,236,.35)');
@@ -1046,7 +1046,7 @@
       mem = mem || {};
       const c = document.createElement('canvas'); c.width = 800; c.height = 1000;
       const g = c.getContext('2d');
-      g.fillStyle = '#ece6d2'; g.fillRect(0, 0, 800, 1000);
+      g.fillStyle = '#e2dcc6'; g.fillRect(0, 0, 800, 1000);
       for (let i = 0; i < 160; i++) { g.fillStyle = 'rgba(90,76,50,' + (0.03 + Math.random() * 0.05) + ')'; g.beginPath(); g.arc(Math.random() * 800, Math.random() * 1000, 1 + Math.random() * 2.4, 0, 7); g.fill(); }
       g.strokeStyle = 'rgba(60,50,30,.12)'; g.lineWidth = 3; g.strokeRect(30, 30, 740, 940);
       const secret = mem.secret || '???';
@@ -1061,16 +1061,18 @@
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
     }
 
-    const polFrontMat = new THREE.MeshBasicMaterial({ map: polaroidFront({}), color: 0xb8b8b8, transparent: true, opacity: 0 });
-    const polBackMat = new THREE.MeshBasicMaterial({ map: polaroidBack({}), color: 0xb8b8b8, transparent: true, opacity: 0 });
+    const polFrontMat = new THREE.MeshBasicMaterial({ map: polaroidFront({}), color: 0xffffff, transparent: true, opacity: 0 });
+    const polBackMat = new THREE.MeshBasicMaterial({ map: polaroidBack({}), color: 0xffffff, transparent: true, opacity: 0 });
     const polaroid = new THREE.Group();
     const polFront = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), polFrontMat); polFront.position.z = 0.004;
     const polBack = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), polBackMat); polBack.rotation.y = Math.PI; polBack.position.z = -0.004;
-    const photoPlane = new THREE.Mesh(new THREE.PlaneGeometry(PHOTO_W, PHOTO_H), new THREE.MeshBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0 }));
+    const photoPlane = new THREE.Mesh(new THREE.PlaneGeometry(PHOTO_W, PHOTO_H), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 }));
     photoPlane.position.set(0, PHOTO_DY, 0.012); photoPlane.visible = false;
     polaroid.add(polBack, polFront, photoPlane);
     polaroid.position.copy(POL_HOME); polaroid.visible = false;
     book.add(polaroid);
+    [polFront, polBack, photoPlane].forEach(m => m.layers.set(1));
+    const _pw = new THREE.Vector3(), _pn = new THREE.Vector3(), _pc = new THREE.Vector3(), _pq = new THREE.Quaternion();
 
     const backGlow = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: glowTex, color: 0x4a3a9e, transparent: true, opacity: .13, blending: THREE.AdditiveBlending, depthWrite: false }));
     backGlow.position.set(0, 0, -2.3); book.add(backGlow);
@@ -1134,6 +1136,7 @@
     const _sv = new THREE.Vector3();
 
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
+    raycaster.layers.enable(1);
     function setPointer(e) {
       pointer.x = (e.clientX / innerWidth) * 2 - 1;
       pointer.y = -(e.clientY / innerHeight) * 2 + 1;
@@ -1579,6 +1582,16 @@
       }
 
       composer.render();
+      if (bookRoot.visible && polaroid.visible) {
+        polaroid.getWorldPosition(_pw); polaroid.getWorldQuaternion(_pq);
+        _pn.set(0, 0, 1).applyQuaternion(_pq);
+        _pc.copy(camera.position).sub(_pw);
+        if (polState !== 'idle' || _pn.dot(_pc) > 0) {
+          renderer.autoClear = false; renderer.clearDepth();
+          camera.layers.set(1); renderer.render(scene, camera); camera.layers.set(0);
+          renderer.autoClear = true;
+        }
+      }
     };
 
     return {
