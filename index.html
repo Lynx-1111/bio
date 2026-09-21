@@ -562,13 +562,13 @@
 </script>
 <script type="module">
   const MEMORIES = [
-    { text: 'My love', photo: '', caption: '' },
-    { text: 'Forever', photo: '', caption: '' },
-    { text: 'I love you', photo: '', caption: '' },
-    { text: 'My wife', photo: '', caption: '' },
-    { text: 'Always yours', photo: '', caption: '' },
-    { text: 'My universe', photo: '', caption: '' },
-    { text: 'You are my home', photo: '', caption: '' }
+    { text: 'My love', photo: '', caption: '', label: '', secret: '' },
+    { text: 'Forever', photo: '', caption: '', label: '', secret: '' },
+    { text: 'I love you', photo: '', caption: '', label: '', secret: '' },
+    { text: 'My wife', photo: '', caption: '', label: '', secret: '' },
+    { text: 'Always yours', photo: '', caption: '', label: '', secret: '' },
+    { text: 'My universe', photo: '', caption: '', label: '', secret: '' },
+    { text: 'You are my home', photo: '', caption: '', label: '', secret: '' }
   ];
   const TUNNEL_TIME = 4.4;
   const TAU = Math.PI * 2;
@@ -977,29 +977,6 @@
       g.strokeStyle = 'rgba(205,196,236,.14)'; g.lineWidth = 2; g.strokeRect(44, 44, 552, 792);
       let seed = 21; const sr = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
       for (let i = 0; i < 26; i++) drawStar(g, 70 + sr() * 500, 70 + sr() * 740, 1.5 + sr() * 4, 'rgba(231,225,245,.3)');
-      g.save(); g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 16; g.shadowOffsetY = 6;
-      g.fillStyle = '#c8c0a8'; g.fillRect(120, 150, 400, 500); g.restore();
-      g.fillStyle = '#0f0b22'; g.fillRect(140, 170, 360, 350);
-      g.strokeStyle = 'rgba(190,180,230,.35)'; g.lineWidth = 2; g.strokeRect(140, 170, 360, 350);
-      drawStar(g, 320, 330, 16, 'rgba(205,196,236,.35)');
-      g.font = 'italic 400 30px "Instrument Serif", Georgia, serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillStyle = 'rgba(196,186,228,.5)'; g.fillText('???', 320, 385);
-      g.save(); g.translate(320, 150); g.rotate(-0.035);
-      g.shadowColor = 'rgba(0,0,0,.3)'; g.shadowBlur = 5; g.shadowOffsetY = 2;
-      const tape = g.createLinearGradient(-64, 0, 64, 0);
-      tape.addColorStop(0, 'rgba(224,206,164,.25)'); tape.addColorStop(.15, 'rgba(230,214,176,.68)');
-      tape.addColorStop(.85, 'rgba(230,214,176,.68)'); tape.addColorStop(1, 'rgba(224,206,164,.25)');
-      g.fillStyle = tape; g.fillRect(-64, -15, 128, 30);
-      g.shadowColor = 'transparent';
-      g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 1;
-      for (let i = -50; i <= 50; i += 13) { g.beginPath(); g.moveTo(i, -14); g.lineTo(i + 7, 14); g.stroke(); }
-      g.restore();
-      g.font = 'italic 400 18px "Instrument Serif", Georgia, serif';
-      g.fillStyle = 'rgba(0,0,0,.55)';
-      g.fillText('a memory', 320, 555);
-      g.font = 'italic 400 26px "Instrument Serif", Georgia, serif';
-      g.fillStyle = '#000';
-      g.fillText('???', 320, 592);
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
     }
 
@@ -1030,10 +1007,70 @@
     pagesLeft.position.set(PCX - PIVOT_X, 0, PD / 4);
     frontPivot.add(pagesLeft);
 
-    const PHOTO_W = 3.5, PHOTO_H = 3.28, PHOTO_Y = 0.89;
-    const photoPlane = new THREE.Mesh(new THREE.PlaneGeometry(PHOTO_W, PHOTO_H), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }));
-    photoPlane.position.set(LEFT_CX, PHOTO_Y, 0.03); photoPlane.visible = false;
-    book.add(photoPlane);
+    const CARD_W = 3.9, CARD_H = 4.875, PHOTO_W = 3.51, PHOTO_H = 3.41, PHOTO_DY = 0.536;
+    const POL_HOME = new THREE.Vector3(LEFT_CX, 0.375, 0.03);
+    const POL_HELD = new THREE.Vector3(0, 0.2, 4.6);
+    const IDQ = new THREE.Quaternion();
+    const SERIF = '"Instrument Serif", Georgia, serif';
+
+    function polaroidFront(mem) {
+      mem = mem || {};
+      const c = document.createElement('canvas'); c.width = 800; c.height = 1000;
+      const g = c.getContext('2d');
+      g.fillStyle = '#f4f0e2'; g.fillRect(0, 0, 800, 1000);
+      g.fillStyle = '#0f0b22'; g.fillRect(40, 40, 720, 700);
+      g.strokeStyle = 'rgba(190,180,230,.35)'; g.lineWidth = 3; g.strokeRect(40, 40, 720, 700);
+      drawStar(g, 400, 350, 30, 'rgba(205,196,236,.35)');
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = 'italic 400 56px ' + SERIF;
+      g.fillStyle = 'rgba(196,186,228,.5)'; g.fillText('???', 400, 425);
+      g.save(); g.translate(400, 36); g.rotate(-0.035);
+      const tape = g.createLinearGradient(-110, 0, 110, 0);
+      tape.addColorStop(0, 'rgba(214,196,150,.4)'); tape.addColorStop(.15, 'rgba(226,210,170,.85)');
+      tape.addColorStop(.85, 'rgba(226,210,170,.85)'); tape.addColorStop(1, 'rgba(214,196,150,.4)');
+      g.fillStyle = tape; g.fillRect(-110, -26, 220, 52);
+      g.restore();
+      const label = mem.label || '???';
+      let fs = 110;
+      for (const s2 of [110, 90, 72, 58, 46]) {
+        fs = s2; g.font = 'italic 400 ' + s2 + 'px ' + SERIF;
+        if (g.measureText(label).width <= 660) break;
+      }
+      g.font = 'italic 400 ' + fs + 'px ' + SERIF; g.fillStyle = '#000';
+      g.fillText(label, 400, 845);
+      g.font = 'italic 400 36px ' + SERIF; g.fillStyle = 'rgba(0,0,0,.5)';
+      g.fillText('a memory', 400, 940);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+    }
+    function polaroidBack(mem) {
+      mem = mem || {};
+      const c = document.createElement('canvas'); c.width = 800; c.height = 1000;
+      const g = c.getContext('2d');
+      g.fillStyle = '#ece6d2'; g.fillRect(0, 0, 800, 1000);
+      for (let i = 0; i < 160; i++) { g.fillStyle = 'rgba(90,76,50,' + (0.03 + Math.random() * 0.05) + ')'; g.beginPath(); g.arc(Math.random() * 800, Math.random() * 1000, 1 + Math.random() * 2.4, 0, 7); g.fill(); }
+      g.strokeStyle = 'rgba(60,50,30,.12)'; g.lineWidth = 3; g.strokeRect(30, 30, 740, 940);
+      const secret = mem.secret || '???';
+      g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+      g.font = 'italic 400 50px ' + SERIF;
+      const lines = wrap(g, secret, 660).slice(0, 5), lh = 62;
+      let y = 940 - (lines.length - 1) * lh;
+      g.font = 'italic 400 30px ' + SERIF; g.fillStyle = 'rgba(60,50,30,.45)';
+      g.fillText('secret', 70, y - 66);
+      g.font = 'italic 400 50px ' + SERIF; g.fillStyle = '#3d3626';
+      for (const l of lines) { g.fillText(l, 70, y); y += lh; }
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+    }
+
+    const polFrontMat = new THREE.MeshBasicMaterial({ map: polaroidFront({}), color: 0xb8b8b8, transparent: true, opacity: 0 });
+    const polBackMat = new THREE.MeshBasicMaterial({ map: polaroidBack({}), color: 0xb8b8b8, transparent: true, opacity: 0 });
+    const polaroid = new THREE.Group();
+    const polFront = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), polFrontMat); polFront.position.z = 0.004;
+    const polBack = new THREE.Mesh(new THREE.PlaneGeometry(CARD_W, CARD_H), polBackMat); polBack.rotation.y = Math.PI; polBack.position.z = -0.004;
+    const photoPlane = new THREE.Mesh(new THREE.PlaneGeometry(PHOTO_W, PHOTO_H), new THREE.MeshBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: 0 }));
+    photoPlane.position.set(0, PHOTO_DY, 0.012); photoPlane.visible = false;
+    polaroid.add(polBack, polFront, photoPlane);
+    polaroid.position.copy(POL_HOME); polaroid.visible = false;
+    book.add(polaroid);
 
     const backGlow = new THREE.Mesh(new THREE.PlaneGeometry(15, 15), new THREE.MeshBasicMaterial({ map: glowTex, color: 0x4a3a9e, transparent: true, opacity: .13, blending: THREE.AdditiveBlending, depthWrite: false }));
     backGlow.position.set(0, 0, -2.3); book.add(backGlow);
@@ -1091,6 +1128,8 @@
     let downX = 0, downY = 0, downT = 0, moved = 0, strapping = false, bookDrag = false, dragProg = 0;
     let lastPX = 0, lastPY = 0, lastBX = 0, lastBY = 0, lastTouch = 0, hoveredSprite = null;
     let photoTex = null;
+    let polState = 'idle', polPending = false, polDown = false, polHitDown = false, lastPolX = 0, lastPolY = 0;
+    const polSpin = { x: 0, y: 0 };
     const pointers = new Set();
     const _sv = new THREE.Vector3();
 
@@ -1123,6 +1162,50 @@
       if (leftPageMat.map) leftPageMat.map.dispose();
       leftPageMat.map = leftPageTexture(mem); leftPageMat.needsUpdate = true;
     }
+    function setPolaroid(mem) {
+      if (polFrontMat.map) polFrontMat.map.dispose();
+      if (polBackMat.map) polBackMat.map.dispose();
+      polFrontMat.map = polaroidFront(mem); polBackMat.map = polaroidBack(mem);
+      polFrontMat.needsUpdate = true; polBackMat.needsUpdate = true;
+    }
+    const hitPol = () => polaroid.visible && (polState === 'held' || photoK > 0.6) && raycaster.intersectObjects([polFront, polBack], false).length > 0;
+
+    function pickUp() {
+      if (bookState !== 'open' || polState !== 'idle') return;
+      polState = 'lifting'; killTweens('pol');
+      bookRoot.attach(polaroid);
+      polSpin.x = 0; polSpin.y = 0;
+      const p0 = polaroid.position.clone(), q0 = polaroid.quaternion.clone(), s0 = polaroid.scale.x;
+      bookHint.textContent = 'drag to turn it over · tap outside to put it back';
+      bookHint.classList.add('on'); dom.style.cursor = 'grab';
+      tween('pol', .7, k => {
+        polaroid.position.lerpVectors(p0, POL_HELD, k);
+        polaroid.quaternion.slerpQuaternions(q0, IDQ, k);
+        polaroid.scale.setScalar(lerp(s0, 1.5, k));
+      }, easeInOutCubic, () => { polaroid.rotation.set(0, 0, 0); polState = 'held'; });
+    }
+    function finishReturn() {
+      book.attach(polaroid);
+      polaroid.position.copy(POL_HOME); polaroid.quaternion.identity(); polaroid.scale.setScalar(1);
+      polState = 'idle'; polSpin.x = 0; polSpin.y = 0;
+      bookHint.textContent = 'pull the cord to close';
+      if (bookState === 'open') { bookHint.classList.add('on'); dom.style.cursor = 'move'; }
+    }
+    function putBack() {
+      if (polState !== 'held') return;
+      polState = 'returning'; killTweens('pol');
+      bookHint.classList.remove('on');
+      const p0 = polaroid.position.clone(), q0 = polaroid.quaternion.clone(), s0 = polaroid.scale.x;
+      const tp = new THREE.Vector3(), tq = new THREE.Quaternion();
+      tween('pol', .7, k => {
+        tp.copy(POL_HOME); book.localToWorld(tp); bookRoot.worldToLocal(tp);
+        tq.copy(bookSpin.quaternion);
+        polaroid.position.lerpVectors(p0, tp, k);
+        polaroid.quaternion.slerpQuaternions(q0, tq, k);
+        polaroid.scale.setScalar(lerp(s0, 1, k));
+      }, easeInOutCubic, finishReturn);
+    }
+
     function setPhoto(url) {
       const tok = ++photoTok;
       photoPlane.visible = false; photoPlane.material.map = null; photoPlane.material.needsUpdate = true;
@@ -1140,7 +1223,10 @@
     }
 
     function killBook() {
-      killTweens('book');
+      killTweens('book'); killTweens('pol');
+      book.add(polaroid); polaroid.position.copy(POL_HOME); polaroid.quaternion.identity(); polaroid.scale.setScalar(1);
+      polaroid.visible = false; polState = 'idle'; polPending = false; polDown = false;
+      bookHint.textContent = 'pull the cord to close';
       strapping = false; bookDrag = false; window.__loveBook = false;
       bookRoot.visible = false; bookState = 'hidden'; photoK = 0;
       hoveredSprite = null; bookHint.classList.remove('on'); dom.style.cursor = '';
@@ -1150,7 +1236,7 @@
       if (bookState !== 'hidden' || phase !== 1 || !roomReady) return;
       killTweens('book');
       anim = null; vel.set(0, 0); dragging = false;
-      setPage(mem); setLeftPage(mem); setPhoto(mem.photo);
+      setPage(mem); setLeftPage(mem); setPolaroid(mem); setPhoto(mem.photo);
       photoK = 0; strapX = STRAP_REST; strapV = 0; strapSquash = 1; swayCur = 0; dragProg = 0;
       strapGroup.userData.bead.scale.setScalar(1); strapGroup.userData.bead2.scale.setScalar(1);
       frontPivot.rotation.y = 0;
@@ -1184,7 +1270,7 @@
     }
 
     function closeBook() {
-      if (bookState !== 'open') return;
+      if (bookState !== 'open' || polState !== 'idle') return;
       bookState = 'closing'; strapping = false; bookDrag = false; window.__loveBook = false;
       bookHint.classList.remove('on'); dom.style.cursor = '';
       killTweens('book');
@@ -1218,7 +1304,7 @@
         });
       });
     }
-    window.addEventListener('keydown', e => { if (e.key === 'Escape' && window.__loveBook) closeBook(); });
+    window.addEventListener('keydown', e => { if (e.key === 'Escape' && window.__loveBook) { if (polState !== 'idle') putBack(); else closeBook(); } });
 
     const setMode = m => {
       mode = m;
@@ -1244,8 +1330,11 @@
     function updateHover(e) {
       setPointer(e);
       if (bookState === 'open') {
-        const hit = raycaster.intersectObjects(strapGroup.children, false).length > 0;
-        hoveredSprite = null; dom.style.cursor = hit ? 'grab' : 'move';
+        hoveredSprite = null;
+        if (polState === 'held') dom.style.cursor = hitPol() ? 'grab' : 'pointer';
+        else if (polState !== 'idle') dom.style.cursor = 'move';
+        else if (hitPol()) dom.style.cursor = 'pointer';
+        else { const hit = raycaster.intersectObjects(strapGroup.children, false).length > 0; dom.style.cursor = hit ? 'grab' : 'move'; }
       } else if (bookState === 'hidden') {
         const hits = raycaster.intersectObjects(memSprites, false);
         hoveredSprite = hits.length ? hits[0].object : null;
@@ -1259,6 +1348,17 @@
       if (phase !== 1) return;
       if (bookState === 'open') {
         setPointer(e);
+        if (polState === 'held') {
+          polHitDown = hitPol(); polDown = true; lastPolX = e.clientX; lastPolY = e.clientY;
+          try { dom.setPointerCapture(e.pointerId); } catch (err) {}
+          return;
+        }
+        if (polState !== 'idle') return;
+        if (hitPol()) {
+          polPending = true; lastBX = e.clientX; lastBY = e.clientY; lastTouch = performance.now();
+          try { dom.setPointerCapture(e.pointerId); } catch (err) {}
+          return;
+        }
         const direct = raycaster.intersectObjects(strapGroup.children, false).length > 0;
         const near = distToStrap(e.clientX, e.clientY) < Math.max(90, innerWidth * 0.08);
         if (direct || near) {
@@ -1278,6 +1378,16 @@
     dom.addEventListener('pointermove', e => {
       if (phase !== 1) return;
       if (pointers.has(e.pointerId)) moved = Math.max(moved, Math.hypot(e.clientX - downX, e.clientY - downY));
+      if (polDown) {
+        polSpin.y += (e.clientX - lastPolX) * 0.0075;
+        polSpin.x = clamp(polSpin.x + (e.clientY - lastPolY) * 0.006, -1.1, 1.1);
+        lastPolX = e.clientX; lastPolY = e.clientY;
+        return;
+      }
+      if (polPending) {
+        if (moved >= 6) { polPending = false; bookDrag = true; }
+        else return;
+      }
       if (strapping) {
         const sp = screenPos(strapGroup), bp = screenPos(book);
         let vx = bp.x - sp.x, vy = bp.y - sp.y;
@@ -1305,6 +1415,16 @@
       pointers.delete(e.pointerId);
       if (pointers.size === 0) dragging = false;
       if (phase !== 1) return;
+      if (polDown) {
+        polDown = false;
+        if (moved < 6) {
+          setPointer(e);
+          if (hitPol()) polSpin.y = Math.round(polSpin.y / Math.PI) * Math.PI + Math.PI;
+          else putBack();
+        }
+        return;
+      }
+      if (polPending) { polPending = false; if (moved < 6) pickUp(); return; }
       if (strapping) {
         strapping = false; dom.style.cursor = 'grab';
         if (dragProg >= 0.66 || (performance.now() - downT < 350 && moved < 6)) closeBook();
@@ -1318,7 +1438,7 @@
         if (hits.length) openBook(hits[0].object.userData.mem);
       }
     });
-    dom.addEventListener('pointercancel', e => { pointers.delete(e.pointerId); dragging = false; strapping = false; bookDrag = false; });
+    dom.addEventListener('pointercancel', e => { pointers.delete(e.pointerId); dragging = false; strapping = false; bookDrag = false; polDown = false; polPending = false; });
     dom.addEventListener('dblclick', resetView);
 
     addEventListener('resize', () => {
@@ -1447,7 +1567,14 @@
         bookSpin.rotation.x += (spinT.x - bookSpin.rotation.x) * Math.min(1, dt * 6);
         if (bookState === 'open' && !bookDrag && performance.now() - lastTouch > 2600) spinT.y += dt * 0.05;
 
-        photoPlane.material.opacity = photoK;
+        const polOp = polState === 'idle' ? photoK : 1;
+        polaroid.visible = polState !== 'idle' || photoK > 0.001;
+        polFrontMat.opacity = polOp; polBackMat.opacity = polOp; photoPlane.material.opacity = polOp;
+        if (polState === 'held') {
+          polaroid.rotation.y += (polSpin.y - polaroid.rotation.y) * Math.min(1, dt * 6);
+          polaroid.rotation.x += (polSpin.x - polaroid.rotation.x) * Math.min(1, dt * 6);
+          polaroid.position.y = 0.2 + Math.sin(now * 1.05) * 0.08;
+        }
         ribbon.rotation.x = Math.sin(now * 1.35) * 0.16;
       }
 
