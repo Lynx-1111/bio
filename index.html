@@ -99,9 +99,6 @@
   .pbtn.main svg, .pbtn.main svg * { fill:currentColor; stroke:currentColor; }
   .plabel { margin-left:4px; color:var(--mute); font-size:.85rem; }
 
-  #loveHost { position:absolute; top:20px; left:20px; z-index:20; width:min(300px, 62vw); border-radius:12px; overflow:hidden; opacity:0; transform:translateY(-8px); transition:opacity .6s ease .6s, transform .6s ease .6s; }
-  .love-modal.show #loveHost { opacity:1; transform:none; }
-
   footer { max-width:1040px; margin:0 auto; padding:24px 28px 56px; color:var(--mute); font-size:.85rem; }
 
   .menu { --duration:.45s; --cubic:cubic-bezier(.4,0,.2,1); --color-1:#9a9995; --color-2:#f2f1ee;
@@ -160,7 +157,7 @@
   .love-btn { all:unset; display:inline-flex; align-items:center; gap:8px; margin-top:22px; padding:10px 20px; border:1px solid var(--line); border-radius:999px; color:var(--mute); font:500 .9rem var(--sans); cursor:pointer; transition:color .2s, border-color .2s, background .2s; }
   .love-btn:hover, .love-btn:focus-visible { color:var(--fg); border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.04); }
 
-  #cosmicLoveClose { position:absolute; z-index:20; top:24px; right:26px; padding:0; border:0; background:none; color:var(--mute); font:400 .92rem var(--sans); text-decoration:underline; text-underline-offset:5px; text-decoration-color:var(--line); cursor:pointer; transition:color .2s, text-decoration-color .2s; }
+  #cosmicLoveClose { position:absolute; z-index:21; top:24px; right:26px; padding:0; border:0; background:none; color:var(--mute); font:400 .92rem var(--sans); text-decoration:underline; text-underline-offset:5px; text-decoration-color:var(--line); cursor:pointer; transition:color .2s, text-decoration-color .2s; }
   #cosmicLoveClose:hover, #cosmicLoveClose:focus-visible { color:var(--fg); text-decoration-color:var(--mute); }
 
   .mode-bar { position:absolute; z-index:16; left:50%; bottom:30px; transform:translate(-50%,8px); display:inline-flex; align-items:center; gap:14px; opacity:0; pointer-events:none; transition:opacity .5s ease, transform .5s ease; }
@@ -239,7 +236,7 @@
         <div class="ledger">
           <div><span>Founder</span><b>2.8K members</b></div>
           <div><span>Developer</span><b>34.8K members</b></div>
-          <div><span>Developer for Snow</span><b>200K members</b></div>
+          <div><span>Developer</span><b>200K members</b></div>
         </div>
         <p class="learn"><strong>Learning</strong>Lua, C++, C#, reverse engineering, x64dbg, DLLs, and more.</p>
         <button id="loveBtn" type="button" class="love-btn">my love</button>
@@ -250,7 +247,7 @@
         <div class="links">
           <a href="https://www.roblox.com/users/11038607/profile" target="_blank" rel="noopener" data-roblox-id="11038607">Roblox <span class="who"><em>Gleend_d</em><img src="https://tr.rbxcdn.com/30DAY-Avatar-CAEE1C4D0E0465BF2259A2F13C6E03AC-Png/352/352/Avatar/Png/noFilter" alt="" onerror="this.hidden=true"></span></a>
           <a href="https://www.tiktok.com/@lynxgg_1" target="_blank" rel="noopener">TikTok <span class="who"><em>@lynxgg_1</em><img src="data:image/jpeg;base64,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" alt=""></span></a>
-          <a href="https://discord.com/users/916982146822971403" target="_blank" rel="noopener" data-discord-id="916982146822971403" data-avatar="fixed">Discord <span class="who"><em data-name>Direct profile</em><img src="https://files.catbox.moe/5sf9f5.webp" alt=""></span></a>
+          <a href="https://discord.com/users/916982146822971403" target="_blank" rel="noopener" data-discord-id="916982146822971403" data-avatar="fixed">Discord <span class="who"><em>Lynxz</em><img src="https://files.catbox.moe/5sf9f5.webp" alt=""></span></a>
         </div>
 
         <p class="friends-label">Best friends</p>
@@ -287,7 +284,6 @@
   <div class="love-veil"></div>
   <div id="loveStage"></div>
   <div id="loveFlash" class="love-flash"></div>
-  <div id="loveHost"><div id="love-sp"></div></div>
   <button id="cosmicLoveClose" class="love-close" type="button" aria-label="Close">close</button>
   <div id="modeBar" class="mode-bar" role="group" aria-label="Drag mode">
     <button type="button" data-mode="tilt" class="on">tilt</button>
@@ -392,7 +388,7 @@
     }
   })();
 
-  const LOVE_SONG_URL = 'https://open.spotify.com/album/6cUhnbhBBTFNb6z2w7llGx?si=7045f3a9b4cb4588';
+  const LOVE_SONG_URL = 'https://files.catbox.moe/3mnzcq.mp3';
   const PLAYLIST_ID = '4QTPYX66wHjtVDSLoi9mNz';
   const TRACK_LINKS = `
 
@@ -401,15 +397,16 @@
   const TRACKS = [...new Set((TRACK_LINKS.match(/track[\/:][A-Za-z0-9]{22}/g) || []).map(s => s.slice(6)))];
   const customPlayer = TRACKS.length > 1;
 
-  let userMuted = false, spotifyPlaying = false, loveActive = false, fadeTimer, spController = null, loveCtrl = null;
+  let userMuted = false, spotifyPlaying = false, loveActive = false, fadeTimer, spController = null;
   try { userMuted = localStorage.getItem('bio-muted') === '1'; } catch (e) {}
   const snd = $('snd');
 
-  const loveMatch = LOVE_SONG_URL.match(/spotify\.com\/(album|track|playlist)\/([A-Za-z0-9]+)/);
-  const loveSpUri = loveMatch ? 'spotify:' + loveMatch[1] + ':' + loveMatch[2] : null;
   const loveAudio = new Audio();
-  loveAudio.loop = true; loveAudio.preload = 'none'; loveAudio.volume = 0.7;
-  if (LOVE_SONG_URL && !loveSpUri) loveAudio.src = LOVE_SONG_URL;
+  loveAudio.loop = false;
+  loveAudio.preload = 'auto';
+  loveAudio.volume = 0.9;
+  loveAudio.src = LOVE_SONG_URL;
+  loveAudio.load();
 
   function fadeVolume(to) {
     clearInterval(fadeTimer);
@@ -422,9 +419,9 @@
   }
   function applyAudio() {
     bg.muted = userMuted;
-    loveAudio.muted = userMuted;
     fadeVolume((spotifyPlaying || loveActive) ? 0 : 0.6);
   }
+
   function showMuted() {
     pill.classList.toggle('muted', userMuted);
     snd.setAttribute('aria-pressed', String(userMuted));
@@ -435,25 +432,22 @@
     userMuted = !userMuted;
     try { localStorage.setItem('bio-muted', userMuted ? '1' : '0'); } catch (e) {}
     showMuted(); applyAudio();
-    if (userMuted && loveCtrl && loveActive) { try { loveCtrl.pause(); } catch (e) {} }
-    if (!userMuted && loveCtrl && loveActive) { try { loveCtrl.play(); } catch (e) {} }
   });
 
   window.addEventListener('love:open', () => {
     loveActive = true;
     try { if (spController && spController.pause) spController.pause(); } catch (e) {}
     applyAudio();
-    if (loveSpUri) {
-      if (loveCtrl && !userMuted) { try { loveCtrl.play(); } catch (e) {} }
-    } else if (LOVE_SONG_URL) {
-      try { loveAudio.currentTime = 0; } catch (e) {}
-      loveAudio.play().catch(() => {});
-    }
+    loveAudio.muted = false;
+    loveAudio.volume = 0.9;
+    try { loveAudio.pause(); loveAudio.currentTime = 0; } catch (e) {}
+    try { loveAudio.load(); } catch (e) {}
+    const p = loveAudio.play();
+    if (p && p.catch) p.catch(err => console.warn('love audio play failed:', err));
   });
   window.addEventListener('love:close', () => {
     loveActive = false;
-    try { if (loveCtrl) loveCtrl.pause(); } catch (e) {}
-    loveAudio.pause();
+    try { loveAudio.pause(); loveAudio.currentTime = 0; } catch (e) {}
     applyAudio();
   });
 
@@ -489,17 +483,6 @@
     f.width = '100%'; f.height = '352';
     f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
     holder.replaceWith(f);
-    loveFallback();
-  }
-  function loveFallback() {
-    const lh = $('love-sp');
-    if (!lh || loveCtrl || !loveMatch) return;
-    const lf = document.createElement('iframe');
-    lf.title = 'Spotify love song';
-    lf.src = 'https://open.spotify.com/embed/' + loveMatch[1] + '/' + loveMatch[2] + '?utm_source=generator&theme=0';
-    lf.width = '100%'; lf.height = '152';
-    lf.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-    lh.replaceWith(lf);
   }
   window.onSpotifyIframeApiReady = IFrameAPI => {
     const mainUri = customPlayer ? 'spotify:track:' + TRACKS[0] : 'spotify:playlist:' + PLAYLIST_ID;
@@ -518,12 +501,6 @@
         }
       });
     });
-    if (loveSpUri) {
-      IFrameAPI.createController($('love-sp'), { uri: loveSpUri, width: '100%', height: 152 }, controller => {
-        loveCtrl = controller;
-        if (loveActive && !userMuted) { try { controller.play(); } catch (e) {} }
-      });
-    }
   };
   const spScript = document.createElement('script');
   spScript.src = 'https://open.spotify.com/embed/iframe-api/v1';
@@ -531,7 +508,6 @@
   spScript.onerror = spotifyFallback;
   document.body.appendChild(spScript);
   setTimeout(spotifyFallback, 8000);
-  setTimeout(loveFallback, 8000);
 
   const navItems = [...document.querySelectorAll('.menu__item')];
   const spots = navItems.map(i => i.dataset.target === 'top' ? null : document.getElementById(i.dataset.target));
